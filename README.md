@@ -1,4 +1,4 @@
-<p align="center"> <img alt="Space Station 14" width="880" height="300" src="https://github.com/Lobotomy-Corporation-14/lobcorp14/assets/85175107/53fa1da6-d95a-4811-a49e-52226916dc9a" /></p>
+<p align="center"> <img alt="Space Station 14" width="880" height="300" src="https://github.com/Lobotomy-Corporation-14/lobcorp14/assets/85175107/99986857-53f8-4499-838b-b0c873441e92"/></p>
 
 Space Station 14 is a remake of SS13 that runs on [Robust Toolbox](https://github.com/space-wizards/RobustToolbox), our homegrown engine written in C#.
 
