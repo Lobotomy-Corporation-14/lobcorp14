@@ -68,3 +68,8 @@
   license: "CC-BY-NC-SA-3.0"
   copyright: "every light is blinking at once by Alexander Divine."
   source: "https://soundcloud.com/alexanderdivine/every-light-is-blinking-at-once"
+
+- files: ["story1.ogg"]
+  license: "Custom"
+  copyright: "Story 1 by Project Moon"
+  source: "https://store.steampowered.com/app/568220/Lobotomy_Corporation__Monster_Management_Simulation/"
