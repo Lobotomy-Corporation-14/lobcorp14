@@ -12,8 +12,11 @@ namespace Content.Shared.Beeper.Systems;
 /// </summary>
 public sealed class ProximityBeeperSystem : EntitySystem
 {
+<<<<<<< HEAD
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
     [Dependency] private readonly ProximityDetectionSystem _proximity = default!;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     [Dependency] private readonly BeeperSystem _beeper = default!;
 
     /// <inheritdoc/>

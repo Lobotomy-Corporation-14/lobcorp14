@@ -41,7 +41,7 @@ namespace Content.Client.Inventory
         public const string HiddenPocketEntityId = "StrippingHiddenEntity";
 
         [ViewVariables]
-        private readonly StrippingMenu? _strippingMenu;
+        private StrippingMenu? _strippingMenu;
 
         [ViewVariables]
         private readonly EntityUid _virtualHiddenEntity;
@@ -51,6 +51,7 @@ namespace Content.Client.Inventory
             _examine = EntMan.System<ExamineSystem>();
             _inv = EntMan.System<InventorySystem>();
             _cuffable = EntMan.System<SharedCuffableSystem>();
+<<<<<<< HEAD
 
             // TODO update name when identity changes
             var title = Loc.GetString("strippable-bound-user-interface-stripping-menu-title", ("ownerName", Identity.Name(Owner, EntMan)));
@@ -59,25 +60,32 @@ namespace Content.Client.Inventory
 
             // TODO use global entity
             // BUIs are opened and closed while applying comp sates, so spawning entities here is probably not the best idea.
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
             _virtualHiddenEntity = EntMan.SpawnEntity(HiddenPocketEntityId, MapCoordinates.Nullspace);
         }
 
         protected override void Open()
         {
             base.Open();
+
+            _strippingMenu = this.CreateWindow<StrippingMenu>();
+            _strippingMenu.OnDirty += UpdateMenu;
+            _strippingMenu.Title = Loc.GetString("strippable-bound-user-interface-stripping-menu-title", ("ownerName", Identity.Name(Owner, EntMan)));
+
             _strippingMenu?.OpenCenteredLeft();
         }
 
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
-
-            EntMan.DeleteEntity(_virtualHiddenEntity);
-
             if (!disposing)
                 return;
 
-            _strippingMenu?.Dispose();
+            if (_strippingMenu != null)
+                _strippingMenu.OnDirty -= UpdateMenu;
+
+            EntMan.DeleteEntity(_virtualHiddenEntity);
+            base.Dispose(disposing);
         }
 
         public void DirtyMenu()

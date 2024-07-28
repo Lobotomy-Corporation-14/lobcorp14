@@ -1,7 +1,12 @@
 using Content.Server.StationEvents.Components;
+<<<<<<< HEAD
 using Content.Server.GameTicking.Rules.Components;
 using Content.Server.Station.Components;
 using Content.Shared.GameTicking.Components;
+=======
+using Content.Shared.GameTicking.Components;
+using Content.Shared.Station.Components;
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 using Content.Shared.Storage;
 using Robust.Shared.Map;
 using Robust.Shared.Random;

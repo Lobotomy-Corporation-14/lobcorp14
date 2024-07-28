@@ -84,6 +84,10 @@
             max: 1
       - !type:DoActsBehavior
         acts: [ "Destruction" ]
+<<<<<<< HEAD
+=======
+  - type: BalloonPopper
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
 - type: entity
   parent: Dart

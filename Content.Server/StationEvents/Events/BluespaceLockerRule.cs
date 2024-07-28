@@ -1,10 +1,16 @@
+<<<<<<< HEAD
 using Content.Server.GameTicking.Rules.Components;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 using Content.Server.Resist;
-using Content.Server.Station.Components;
 using Content.Server.StationEvents.Components;
 using Content.Server.Storage.Components;
 using Content.Server.Storage.EntitySystems;
 using Content.Shared.Access.Components;
+<<<<<<< HEAD
+=======
+using Content.Shared.Station.Components;
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 ﻿using Content.Shared.GameTicking.Components;
 using Content.Shared.Coordinates;
 

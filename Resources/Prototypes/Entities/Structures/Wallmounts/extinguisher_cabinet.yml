@@ -30,7 +30,11 @@
           ejectOnInteract: true
           whitelist:
             components:
+<<<<<<< HEAD
             - FireExtinguisher
+=======
+            - SpraySafety
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     - type: Damageable
       damageContainer: Inorganic
       damageModifierSet: Metallic

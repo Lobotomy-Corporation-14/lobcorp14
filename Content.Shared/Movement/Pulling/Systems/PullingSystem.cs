@@ -43,7 +43,10 @@ public sealed class PullingSystem : EntitySystem
     [Dependency] private readonly SharedHandsSystem _handsSystem = default!;
     [Dependency] private readonly SharedInteractionSystem _interaction = default!;
     [Dependency] private readonly SharedPhysicsSystem _physics = default!;
+<<<<<<< HEAD
     [Dependency] private readonly SharedPopupSystem _popup = default!;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     [Dependency] private readonly HeldSpeedModifierSystem _clothingMoveSpeed = default!;
 
     public override void Initialize()

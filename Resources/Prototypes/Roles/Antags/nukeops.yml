@@ -38,9 +38,14 @@
   # should be changed to nukie playtime when thats tracked (wyci)
   guides: [ NuclearOperatives ]
 
+<<<<<<< HEAD
 #Nuclear Operative Gear
 - type: startingGear
   id: SyndicateOperativeGearFull
+=======
+- type: startingGear
+  id: SyndicateOperativeGearFullNoUplink
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   equipment:
     jumpsuit: ClothingUniformJumpsuitOperative
     back: ClothingBackpackDuffelSyndicate
@@ -52,7 +57,11 @@
     shoes: ClothingShoesBootsCombatFilled
     id: SyndiPDA
     pocket1: DoubleEmergencyOxygenTankFilled
+<<<<<<< HEAD
     pocket2: BaseUplinkRadio40TC
+=======
+    pocket2: PlushieCarp
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     belt: ClothingBeltMilitaryWebbing
   storage:
     back:
@@ -61,6 +70,16 @@
     - PinpointerSyndicateNuclear
     - DeathAcidifierImplanter
 
+<<<<<<< HEAD
+=======
+#Nuclear Operative Gear
+- type: startingGear
+  id: SyndicateOperativeGearFull
+  parent: SyndicateOperativeGearFullNoUplink
+  equipment:
+    pocket2: BaseUplinkRadio40TC
+
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 #Nuclear Operative Commander Gear
 - type: startingGear
   id: SyndicateCommanderGearFull

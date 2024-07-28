@@ -32,10 +32,11 @@ public sealed class SpaceNinjaSystem : SharedSpaceNinjaSystem
     [Dependency] private readonly AlertsSystem _alerts = default!;
     [Dependency] private readonly BatterySystem _battery = default!;
     [Dependency] private readonly CodeConditionSystem _codeCondition = default!;
+<<<<<<< HEAD
     [Dependency] private readonly IChatManager _chatMan = default!;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     [Dependency] private readonly PowerCellSystem _powerCell = default!;
-    [Dependency] private readonly RoleSystem _role = default!;
-    [Dependency] private readonly SharedAudioSystem _audio = default!;
     [Dependency] private readonly SharedMindSystem _mind = default!;
 
     public override void Initialize()

@@ -88,7 +88,9 @@ public sealed partial class GunSystem : SharedGunSystem
 
     private void OnMuzzleFlash(MuzzleFlashEvent args)
     {
-        CreateEffect(GetEntity(args.Uid), args);
+        var gunUid = GetEntity(args.Uid);
+
+        CreateEffect(gunUid, args, gunUid);
     }
 
     private void OnHitscan(HitscanEvent ev)
@@ -271,7 +273,11 @@ public sealed partial class GunSystem : SharedGunSystem
         PopupSystem.PopupEntity(message, uid.Value, user.Value);
     }
 
+<<<<<<< HEAD
     protected override void CreateEffect(EntityUid gunUid, MuzzleFlashEvent message, EntityUid? user = null)
+=======
+    protected override void CreateEffect(EntityUid gunUid, MuzzleFlashEvent message, EntityUid? tracked = null)
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     {
         if (!Timing.IsFirstTimePredicted)
             return;
@@ -280,7 +286,11 @@ public sealed partial class GunSystem : SharedGunSystem
         // TODO: Check to see why invalid entities are firing effects.
         if (gunUid == EntityUid.Invalid)
         {
+<<<<<<< HEAD
             Log.Debug($"Invalid Entity sent MuzzleFlashEvent (proto: {message.Prototype}, user: {user})");
+=======
+            Log.Debug($"Invalid Entity sent MuzzleFlashEvent (proto: {message.Prototype}, gun: {ToPrettyString(gunUid)})");
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
             return;
         }
 
@@ -304,10 +314,17 @@ public sealed partial class GunSystem : SharedGunSystem
         var ent = Spawn(message.Prototype, coordinates);
         TransformSystem.SetWorldRotationNoLerp(ent, message.Angle);
 
+<<<<<<< HEAD
         if (user != null)
         {
             var track = EnsureComp<TrackUserComponent>(ent);
             track.User = user;
+=======
+        if (tracked != null)
+        {
+            var track = EnsureComp<TrackUserComponent>(ent);
+            track.User = tracked;
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
             track.Offset = Vector2.UnitX / 2f;
         }
 

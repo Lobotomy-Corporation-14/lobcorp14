@@ -1,6 +1,10 @@
 ﻿- type: entity
   id: WallSpawnAsteroid
+<<<<<<< HEAD
   noSpawn: True
+=======
+  categories: [ HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   components:
   - type: Transform
     anchored: True
@@ -29,7 +33,11 @@
 - type: entity
   id: WallSpawnAsteroidUraniumCrab
   parent: WallSpawnAsteroid
+<<<<<<< HEAD
   noSpawn: True
+=======
+  categories: [ HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   components:
   - type: SpawnOnDespawn
     prototype: AsteroidRockUraniumCrab
@@ -37,7 +45,11 @@
 - type: entity
   id: WallSpawnAsteroidUranium
   parent: WallSpawnAsteroid
+<<<<<<< HEAD
   noSpawn: True
+=======
+  categories: [ HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   components:
   - type: SpawnOnDespawn
     prototype: AsteroidRockUranium
@@ -45,7 +57,11 @@
 - type: entity
   id: WallSpawnAsteroidQuartzCrab
   parent: WallSpawnAsteroid
+<<<<<<< HEAD
   noSpawn: True
+=======
+  categories: [ HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   components:
   - type: SpawnOnDespawn
     prototype: AsteroidRockQuartzCrab
@@ -53,7 +69,11 @@
 - type: entity
   id: WallSpawnAsteroidQuartz
   parent: WallSpawnAsteroid
+<<<<<<< HEAD
   noSpawn: True
+=======
+  categories: [ HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   components:
   - type: SpawnOnDespawn
     prototype: AsteroidRockQuartz
@@ -61,7 +81,11 @@
 - type: entity
   id: WallSpawnAsteroidSilverCrab
   parent: WallSpawnAsteroid
+<<<<<<< HEAD
   noSpawn: True
+=======
+  categories: [ HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   components:
   - type: SpawnOnDespawn
     prototype: AsteroidRockSilverCrab
@@ -69,7 +93,11 @@
 - type: entity
   id: WallSpawnAsteroidSilver
   parent: WallSpawnAsteroid
+<<<<<<< HEAD
   noSpawn: True
+=======
+  categories: [ HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   components:
   - type: SpawnOnDespawn
     prototype: AsteroidRockSilver
@@ -77,7 +105,11 @@
 - type: entity
   id: WallSpawnAsteroidIronCrab
   parent: WallSpawnAsteroid
+<<<<<<< HEAD
   noSpawn: True
+=======
+  categories: [ HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   components:
   - type: SpawnOnDespawn
     prototype: AsteroidRockTinCrab
@@ -85,7 +117,11 @@
 - type: entity
   id: WallSpawnAsteroidIron
   parent: WallSpawnAsteroid
+<<<<<<< HEAD
   noSpawn: True
+=======
+  categories: [ HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   components:
   - type: SpawnOnDespawn
     prototype: AsteroidRockTin

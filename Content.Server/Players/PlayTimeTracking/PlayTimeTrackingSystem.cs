@@ -35,7 +35,10 @@ public sealed class PlayTimeTrackingSystem : EntitySystem
     [Dependency] private readonly MindSystem _minds = default!;
     [Dependency] private readonly PlayTimeTrackingManager _tracking = default!;
     [Dependency] private readonly IAdminManager _adminManager = default!;
+<<<<<<< HEAD
     [Dependency] private readonly SharedRoleSystem _role = default!;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
     public override void Initialize()
     {

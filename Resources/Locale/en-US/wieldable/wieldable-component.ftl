@@ -18,3 +18,8 @@ wieldable-component-not-in-hands = { CAPITALIZE(THE($item)) } isn't in your hand
 wieldable-component-requires = { CAPITALIZE(THE($item))} must be wielded!
 
 gunwieldbonus-component-examine = This weapon has improved accuracy when wielded.
+<<<<<<< HEAD
+=======
+
+gunrequireswield-component-examine = This weapon can only be fired when wielded.
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877

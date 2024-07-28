@@ -23,11 +23,20 @@ public sealed partial class RoboticsConsoleWindow : FancyWindow
     public Action<string>? OnDisablePressed;
     public Action<string>? OnDestroyPressed;
 
+<<<<<<< HEAD
     private Entity<RoboticsConsoleComponent, LockComponent?> _console;
     private string? _selected;
     private Dictionary<string, CyborgControlData> _cyborgs = new();
 
     public RoboticsConsoleWindow(EntityUid console)
+=======
+    private string? _selected;
+    private Dictionary<string, CyborgControlData> _cyborgs = new();
+
+    public EntityUid Entity;
+
+    public RoboticsConsoleWindow()
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
@@ -35,9 +44,12 @@ public sealed partial class RoboticsConsoleWindow : FancyWindow
         _lock = _entMan.System<LockSystem>();
         _sprite = _entMan.System<SpriteSystem>();
 
+<<<<<<< HEAD
         _console = (console, _entMan.GetComponent<RoboticsConsoleComponent>(console), null);
         _entMan.TryGetComponent(_console, out _console.Comp2);
 
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
         Cyborgs.OnItemSelected += args =>
         {
             if (Cyborgs[args.ItemIndex].Metadata is not string address)
@@ -66,6 +78,14 @@ public sealed partial class RoboticsConsoleWindow : FancyWindow
         DestroyButton.StyleClasses.Add(StyleBase.ButtonCaution);
     }
 
+<<<<<<< HEAD
+=======
+    public void SetEntity(EntityUid uid)
+    {
+        Entity = uid;
+    }
+
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     public void UpdateState(RoboticsConsoleState state)
     {
         _cyborgs = state.Cyborgs;
@@ -81,7 +101,11 @@ public sealed partial class RoboticsConsoleWindow : FancyWindow
 
         PopulateData();
 
+<<<<<<< HEAD
         var locked = _lock.IsLocked((_console, _console.Comp2));
+=======
+        var locked = _lock.IsLocked(Entity);
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
         DangerZone.Visible = !locked;
         LockedMessage.Visible = locked;
     }
@@ -135,13 +159,27 @@ public sealed partial class RoboticsConsoleWindow : FancyWindow
 
         // how the turntables
         DisableButton.Disabled = !(data.HasBrain && data.CanDisable);
+<<<<<<< HEAD
         DestroyButton.Disabled = _timing.CurTime < _console.Comp1.NextDestroy;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     }
 
     protected override void FrameUpdate(FrameEventArgs args)
     {
         base.FrameUpdate(args);
 
+<<<<<<< HEAD
         DestroyButton.Disabled = _timing.CurTime < _console.Comp1.NextDestroy;
+=======
+        if (_entMan.TryGetComponent(Entity, out RoboticsConsoleComponent? console))
+        {
+            DestroyButton.Disabled = _timing.CurTime < console.NextDestroy;
+        }
+        else
+        {
+            DestroyButton.Disabled = true;
+        }
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     }
 }

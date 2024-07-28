@@ -7,8 +7,15 @@ using Content.Shared.CCVar;
 using Content.Shared.Procedural;
 using Content.Shared.Salvage;
 using Content.Shared.Shuttles.Components;
+<<<<<<< HEAD
 using Robust.Shared.Collections;
 using Robust.Shared.Map;
+=======
+using Content.Shared.Station.Components;
+using Robust.Shared.Collections;
+using Robust.Shared.Map;
+using Robust.Shared.Map.Components;
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 using Robust.Shared.Random;
 using Robust.Shared.Utility;
 
@@ -85,9 +92,21 @@ public sealed partial class ShuttleSystem
         _mapManager.DeleteMap(mapId);
     }
 
+<<<<<<< HEAD
     private bool TryDungeonSpawn(EntityUid targetGrid, EntityUid stationUid, MapId mapId, DungeonSpawnGroup group, out EntityUid spawned)
     {
         spawned = EntityUid.Invalid;
+=======
+    private bool TryDungeonSpawn(Entity<MapGridComponent?> targetGrid, EntityUid stationUid, MapId mapId, DungeonSpawnGroup group, out EntityUid spawned)
+    {
+        spawned = EntityUid.Invalid;
+
+        if (!_gridQuery.Resolve(targetGrid.Owner, ref targetGrid.Comp))
+        {
+            return false;
+        }
+
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
         var dungeonProtoId = _random.Pick(group.Protos);
 
         if (!_protoManager.TryIndex(dungeonProtoId, out var dungeonProto))
@@ -95,11 +114,21 @@ public sealed partial class ShuttleSystem
             return false;
         }
 
+<<<<<<< HEAD
         var spawnCoords = new EntityCoordinates(targetGrid, Vector2.Zero);
 
         if (group.MinimumDistance > 0f)
         {
             spawnCoords = spawnCoords.Offset(_random.NextVector2(group.MinimumDistance, group.MinimumDistance * 1.5f));
+=======
+        var targetPhysics = _physicsQuery.Comp(targetGrid);
+        var spawnCoords = new EntityCoordinates(targetGrid, targetPhysics.LocalCenter);
+
+        if (group.MinimumDistance > 0f)
+        {
+            var distancePadding = MathF.Max(targetGrid.Comp.LocalAABB.Width, targetGrid.Comp.LocalAABB.Height);
+            spawnCoords = spawnCoords.Offset(_random.NextVector2(distancePadding + group.MinimumDistance, distancePadding + group.MaximumDistance));
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
         }
 
         var spawnMapCoords = _transform.ToMapCoordinates(spawnCoords);

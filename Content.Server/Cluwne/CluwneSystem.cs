@@ -29,7 +29,10 @@ public sealed class CluwneSystem : EntitySystem
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
     [Dependency] private readonly ChatSystem _chat = default!;
     [Dependency] private readonly AutoEmoteSystem _autoEmote = default!;
+<<<<<<< HEAD
     [Dependency] private readonly MetaDataSystem _metaData = default!;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     [Dependency] private readonly NameModifierSystem _nameMod = default!;
 
     public override void Initialize()

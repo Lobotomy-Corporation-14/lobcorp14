@@ -48,7 +48,13 @@
       steps:
       - component: PayloadTrigger
         store: payloadTrigger
-        name: Trigger
+        name: trigger
+        doAfter: 0.5
+    - to: caseWithPayload
+      steps:
+      - tag: Payload
+        store: payload
+        name: payload
         doAfter: 0.5
     - to: caseWithPayload
       steps:
@@ -74,7 +80,27 @@
       steps:
       - tag: Payload
         store: payload
-        name: Payload
+        name: payload
+        doAfter: 0.5
+
+  - node: caseWithPayload
+    actions:
+    - !type:AppearanceChange
+    - !type:PlaySound
+      sound: /Audio/Machines/button.ogg
+    edges:
+    - to: wiredCase
+      steps:
+      - tool: Prying
+        doAfter: 0.5
+        completed:
+        - !type:EmptyContainer
+          container: payload
+    - to: grenade
+      steps:
+      - component: PayloadTrigger
+        store: payloadTrigger
+        name: trigger
         doAfter: 0.5
 
   - node: caseWithPayload

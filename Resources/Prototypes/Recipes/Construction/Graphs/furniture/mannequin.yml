@@ -20,6 +20,10 @@
       edges:
         - to: start
           completed:
+<<<<<<< HEAD
+=======
+            - !type:EmptyAllContainers
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
             - !type:SpawnPrototype
               prototype: MaterialWoodPlank
               amount: 5

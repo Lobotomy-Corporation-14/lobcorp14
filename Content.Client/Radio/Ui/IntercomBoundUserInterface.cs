@@ -1,6 +1,11 @@
 using Content.Shared.Radio;
 using Content.Shared.Radio.Components;
 using JetBrains.Annotations;
+<<<<<<< HEAD
+=======
+using Robust.Client.GameObjects;
+using Robust.Client.UserInterface;
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
 namespace Content.Client.Radio.Ui;
 
@@ -19,9 +24,18 @@ public sealed class IntercomBoundUserInterface : BoundUserInterface
     {
         base.Open();
 
+<<<<<<< HEAD
         var comp = EntMan.GetComponent<IntercomComponent>(Owner);
 
         _menu = new((Owner, comp));
+=======
+        _menu = this.CreateWindow<IntercomMenu>();
+
+        if (EntMan.TryGetComponent(Owner, out IntercomComponent? intercom))
+        {
+            _menu.Update((Owner, intercom));
+        }
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
         _menu.OnMicPressed += enabled =>
         {
@@ -35,13 +49,11 @@ public sealed class IntercomBoundUserInterface : BoundUserInterface
         {
             SendMessage(new SelectIntercomChannelMessage(channel));
         };
-
-        _menu.OnClose += Close;
-        _menu.OpenCentered();
     }
 
-    protected override void Dispose(bool disposing)
+    public void Update(Entity<IntercomComponent> ent)
     {
+<<<<<<< HEAD
         base.Dispose(disposing);
         if (!disposing)
             return;
@@ -50,6 +62,8 @@ public sealed class IntercomBoundUserInterface : BoundUserInterface
 
     public void Update(Entity<IntercomComponent> ent)
     {
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
         _menu?.Update(ent);
     }
 }

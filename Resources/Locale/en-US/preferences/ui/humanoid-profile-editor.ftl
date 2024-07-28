@@ -58,4 +58,9 @@ humanoid-profile-editor-no-traits = No traits available
 humanoid-profile-editor-trait-count-hint = Points available: [{$current}/{$max}]
 
 trait-category-disabilities = Disabilities
+<<<<<<< HEAD
 trait-category-speech = Speech traits
+=======
+trait-category-speech = Speech traits
+trait-category-quirks = Quirks
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877

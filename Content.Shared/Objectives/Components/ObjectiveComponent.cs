@@ -22,8 +22,16 @@ public sealed partial class ObjectiveComponent : Component
     /// <summary>
     /// Organisation that issued this objective, used for grouping and as a header above common objectives.
     /// </summary>
+<<<<<<< HEAD
     [DataField(required: true)]
     public string Issuer = string.Empty;
+=======
+    [DataField("issuer", required: true)]
+    private LocId Issuer { get; set; }
+
+    [ViewVariables(VVAccess.ReadOnly)]
+    public string LocIssuer => Loc.GetString(Issuer);
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
     /// <summary>
     /// Unique objectives can only have 1 per prototype id.

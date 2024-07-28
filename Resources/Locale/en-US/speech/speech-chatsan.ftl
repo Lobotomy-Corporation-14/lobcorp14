@@ -135,3 +135,15 @@ chatsan-replacement-48 = right now
 
 chatsan-word-49 = atm
 chatsan-replacement-49 = at the moment
+<<<<<<< HEAD
+=======
+
+chatsan-word-50 = istg
+chatsan-replacement-50 = I swear to god
+
+chatsan-word-51 = rq
+chatsan-replacement-51 = real quick
+
+chatsan-word-52 = dw
+chatsan-replacement-52 = don't worry
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877

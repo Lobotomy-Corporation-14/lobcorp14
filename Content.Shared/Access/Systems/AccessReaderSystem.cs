@@ -157,6 +157,11 @@ public sealed class AccessReaderSystem : EntitySystem
         if (!_containerSystem.TryGetContainer(target, reader.ContainerAccessProvider, out var container))
             return Paused(target); // when mapping, containers with electronics arent spawned
 
+        // If entity is paused then always allow it at this point.
+        // Door electronics is kind of a mess but yeah, it should only be an unpaused ent interacting with it
+        if (Paused(target))
+            return true;
+
         foreach (var entity in container.ContainedEntities)
         {
             if (!TryComp(entity, out AccessReaderComponent? containedReader))

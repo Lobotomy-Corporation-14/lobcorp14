@@ -14,13 +14,19 @@ namespace Content.Shared.Clothing;
 
 public sealed class ClothingSpeedModifierSystem : EntitySystem
 {
+<<<<<<< HEAD
     [Dependency] private readonly SharedAppearanceSystem _appearance = default!;
     [Dependency] private readonly ClothingSpeedModifierSystem _clothingSpeedModifier = default!;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     [Dependency] private readonly SharedContainerSystem _container = default!;
     [Dependency] private readonly ExamineSystemShared _examine = default!;
     [Dependency] private readonly MovementSpeedModifierSystem _movementSpeed = default!;
     [Dependency] private readonly ItemToggleSystem _toggle = default!;
+<<<<<<< HEAD
     [Dependency] private readonly SharedPowerCellSystem _powerCell = default!;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
     public override void Initialize()
     {

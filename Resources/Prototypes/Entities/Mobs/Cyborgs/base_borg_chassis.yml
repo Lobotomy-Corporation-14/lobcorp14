@@ -99,6 +99,11 @@
     doAfterDelay: 10
     allowSelfRepair: false
   - type: BorgChassis
+  - type: LockingWhitelist
+    blacklist:
+      components:
+      - BorgChassis
+      - RoboticsConsole
   - type: WiresPanel
   - type: ActivatableUIRequiresPanel
   - type: NameIdentifier
@@ -113,7 +118,13 @@
     cellSlotId: cell_slot
     fitsInCharger: true
   - type: ItemToggle
+<<<<<<< HEAD
     onUse: false # no item-borg toggling sorry
+=======
+    activated: false # gets activated when a mind is added
+    onUse: false # no item-borg toggling sorry
+    toggleLight: false
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   - type: AccessToggle
   # TODO: refactor movement to just be based on toggle like speedboots but for the boots themselves
   # TODO: or just have sentient speedboots be fast idk

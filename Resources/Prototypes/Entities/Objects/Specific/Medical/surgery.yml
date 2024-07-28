@@ -173,12 +173,16 @@
     sprite: Objects/Specific/Medical/Surgery/saw.rsi
     state: saw
   - type: Item
+    size: Normal
     sprite: Objects/Specific/Medical/Surgery/saw.rsi
     storedRotation: 90
   - type: Tool
     qualities:
       - Sawing
+<<<<<<< HEAD
     speedModifier: 1.0
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 # No melee for regular saw because have you ever seen someone use a band saw as a weapon? It's dumb.
 
 - type: entity
@@ -190,6 +194,7 @@
   - type: Sprite
     state: improv
   - type: Item
+    size: Small
     heldPrefix: improv
   - type: MeleeWeapon
     damage:
@@ -198,8 +203,11 @@
     soundHit:
       path: /Audio/Weapons/bladeslice.ogg
   - type: Tool
+<<<<<<< HEAD
     qualities:
       - Sawing
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     speedModifier: 0.5
 
 - type: entity
@@ -212,7 +220,6 @@
     state: electric
   - type: Item
     heldPrefix: electric
-    storedRotation: 90
   - type: MeleeWeapon
     damage:
       groups:
@@ -220,29 +227,29 @@
     soundHit:
       path: /Audio/Items/drill_hit.ogg
   - type: Tool
+<<<<<<< HEAD
     qualities:
       - Sawing
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     speedModifier: 1.5
 
 - type: entity
   name: advanced circular saw
   id: SawAdvanced
-  parent: Saw
+  parent: SawElectric
   description: You think you can cut anything with it.
   components:
   - type: Sprite
     state: advanced
   - type: Item
     heldPrefix: advanced
-    storedRotation: 90
   - type: MeleeWeapon
     attackRate: 1.5
-    damage:
-      groups:
-        Brute: 15
-    soundHit:
-      path: /Audio/Items/drill_hit.ogg
   - type: Tool
+<<<<<<< HEAD
     qualities:
       - Sawing
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
     speedModifier: 2.0

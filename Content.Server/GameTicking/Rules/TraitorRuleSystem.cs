@@ -29,7 +29,10 @@ public sealed class TraitorRuleSystem : GameRuleSystem<TraitorRuleComponent>
     [Dependency] private readonly MindSystem _mindSystem = default!;
     [Dependency] private readonly SharedRoleSystem _roleSystem = default!;
     [Dependency] private readonly SharedJobSystem _jobs = default!;
+<<<<<<< HEAD
     [Dependency] private readonly ObjectivesSystem _objectives = default!;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
     public override void Initialize()
     {

@@ -24,7 +24,7 @@ public sealed partial class FlatpackCreatorMenu : FancyWindow
     private readonly FlatpackSystem _flatpack;
     private readonly MaterialStorageSystem _materialStorage;
 
-    private readonly EntityUid _owner;
+    private EntityUid _owner;
 
     [ValidatePrototypeId<EntityPrototype>]
     public const string NoBoardEffectId = "FlatpackerNoBoardEffect";
@@ -33,7 +33,7 @@ public sealed partial class FlatpackCreatorMenu : FancyWindow
 
     public event Action? PackButtonPressed;
 
-    public FlatpackCreatorMenu(EntityUid uid)
+    public FlatpackCreatorMenu()
     {
         RobustXamlLoader.Load(this);
         IoCManager.InjectDependencies(this);
@@ -41,13 +41,21 @@ public sealed partial class FlatpackCreatorMenu : FancyWindow
         _itemSlots = _entityManager.System<ItemSlotsSystem>();
         _flatpack = _entityManager.System<FlatpackSystem>();
         _materialStorage = _entityManager.System<MaterialStorageSystem>();
+<<<<<<< HEAD
 
         _owner = uid;
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
         PackButton.OnPressed += _ => PackButtonPressed?.Invoke();
 
-        MaterialStorageControl.SetOwner(uid);
         InsertLabel.SetMarkup(Loc.GetString("flatpacker-ui-insert-board"));
+    }
+
+    public void SetEntity(EntityUid uid)
+    {
+        _owner = uid;
+        MaterialStorageControl.SetOwner(uid);
     }
 
     protected override void FrameUpdate(FrameEventArgs args)

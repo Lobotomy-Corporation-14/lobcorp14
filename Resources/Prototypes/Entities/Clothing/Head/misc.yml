@@ -205,7 +205,11 @@
     accent: OwOAccent
 
 - type: entity
+<<<<<<< HEAD
   noSpawn: true
+=======
+  categories: [ Actions, HideSpawnMenu ]
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
   id: ActionBecomeValid
   name: Become Valid
   description: "*notices your killsign* owo whats this"

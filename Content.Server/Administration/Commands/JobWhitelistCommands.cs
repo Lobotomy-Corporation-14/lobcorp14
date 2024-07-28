@@ -47,7 +47,11 @@ public sealed class JobWhitelistAddCommand : LocalizedCommands
             var isWhitelisted = await _db.IsJobWhitelisted(guid, job);
             if (isWhitelisted)
             {
+<<<<<<< HEAD
                 shell.WriteLine(Loc.GetString("cmd-jobwhitelist-already-whitelisted",
+=======
+                shell.WriteLine(Loc.GetString("cmd-jobwhitelistadd-already-whitelisted",
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
                     ("player", player),
                     ("jobId", job.Id),
                     ("jobName", jobPrototype.LocalizedName)));

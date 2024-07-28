@@ -232,7 +232,12 @@ public sealed class LockSystem : EntitySystem
 
         var ev = new LockToggleAttemptEvent(user, quiet);
         RaiseLocalEvent(uid, ref ev, true);
-        return !ev.Cancelled;
+        if (ev.Cancelled)
+            return false;
+
+        var userEv = new UserLockToggleAttemptEvent(uid, quiet);
+        RaiseLocalEvent(user, ref userEv, true);
+        return !userEv.Cancelled;
     }
 
     // TODO: this should be a helper on AccessReaderSystem since so many systems copy paste it
@@ -355,6 +360,7 @@ public sealed class LockSystem : EntitySystem
             args.User);
         args.Cancel();
     }
+<<<<<<< HEAD
 
     private void OnUIOpenAttempt(EntityUid uid, ActivatableUIRequiresLockComponent component, ActivatableUIOpenAttemptEvent args)
     {
@@ -377,4 +383,27 @@ public sealed class LockSystem : EntitySystem
         _activatableUI.CloseAll(uid);
     }
 }
+=======
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
+    private void OnUIOpenAttempt(EntityUid uid, ActivatableUIRequiresLockComponent component, ActivatableUIOpenAttemptEvent args)
+    {
+        if (args.Cancelled)
+            return;
+
+        if (TryComp<LockComponent>(uid, out var lockComp) && lockComp.Locked != component.RequireLocked)
+        {
+            args.Cancel();
+            if (lockComp.Locked)
+                _sharedPopupSystem.PopupClient(Loc.GetString("entity-storage-component-locked-message"), uid, args.User);
+        }
+    }
+
+    private void LockToggled(EntityUid uid, ActivatableUIRequiresLockComponent component, LockToggledEvent args)
+    {
+        if (!TryComp<LockComponent>(uid, out var lockComp) || lockComp.Locked == component.RequireLocked)
+            return;
+
+        _activatableUI.CloseAll(uid);
+    }
+}

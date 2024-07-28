@@ -1,8 +1,12 @@
 using Content.Server.Power.Components;
 using Content.Server.Power.EntitySystems;
-using Content.Server.Station.Components;
 using Content.Server.StationEvents.Components;
+<<<<<<< HEAD
 ﻿using Content.Shared.GameTicking.Components;
+=======
+using Content.Shared.GameTicking.Components;
+using Content.Shared.Station.Components;
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 using JetBrains.Annotations;
 
 namespace Content.Server.StationEvents.Events;

@@ -2,6 +2,10 @@ using Content.Shared.Store;
 using JetBrains.Annotations;
 using System.Linq;
 using Content.Shared.Store.Components;
+<<<<<<< HEAD
+=======
+using Robust.Client.UserInterface;
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 using Robust.Shared.Prototypes;
 
 namespace Content.Client.Store.Ui;
@@ -26,12 +30,18 @@ public sealed class StoreBoundUserInterface : BoundUserInterface
 
     protected override void Open()
     {
+<<<<<<< HEAD
         _menu = new StoreMenu();
         if (EntMan.TryGetComponent<StoreComponent>(Owner, out var store))
             _menu.Title = Loc.GetString(store.Name);
 
         _menu.OpenCentered();
         _menu.OnClose += Close;
+=======
+        _menu = this.CreateWindow<StoreMenu>();
+        if (EntMan.TryGetComponent<StoreComponent>(Owner, out var store))
+            _menu.Title = Loc.GetString(store.Name);
+>>>>>>> fce5269fc0b243b78a8742924f97f31807462877
 
         _menu.OnListingButtonPressed += (_, listing) =>
         {
@@ -75,15 +85,6 @@ public sealed class StoreBoundUserInterface : BoundUserInterface
                 _menu?.UpdateRefund(msg.AllowRefund);
                 break;
         }
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        if (!disposing)
-            return;
-        _menu?.Close();
-        _menu?.Dispose();
     }
 
     private void UpdateListingsWithSearchFilter()
