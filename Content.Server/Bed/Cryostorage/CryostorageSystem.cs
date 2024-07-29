@@ -225,16 +225,13 @@ public sealed class CryostorageSystem : SharedCryostorageSystem
         if (!TryComp<StationRecordsComponent>(station, out var stationRecords))
             return;
 
-        var jobName = Loc.GetString("earlyleave-cryo-job-unknown");
-        var recordId = _stationRecords.GetRecordByName(station.Value, name);
-        if (recordId != null)
-        {
-            var key = new StationRecordKey(recordId.Value, station.Value);
-            if (_stationRecords.TryGetRecord<GeneralStationRecord>(key, out var entry, stationRecords))
-                jobName = entry.JobTitle;
+        var key = new StationRecordKey(_stationRecords.GetRecordByName(station.Value, name) ?? default(uint), station.Value);
+        var jobName = "Unknown";
 
-            _stationRecords.RemoveRecord(key, stationRecords);
-        }
+        if (_stationRecords.TryGetRecord<GeneralStationRecord>(key, out var entry, stationRecords))
+            jobName = entry.JobTitle;
+
+        _stationRecords.RemoveRecord(key, stationRecords);
 
         _chatSystem.DispatchStationAnnouncement(station.Value,
             Loc.GetString(

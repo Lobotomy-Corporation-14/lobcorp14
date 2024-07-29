@@ -472,7 +472,6 @@
         - Sidearm
         - MagazinePistol
         - MagazineMagnum
-        - CombatKnife
       components:
         - Stunbaton
         - FlashOnTrigger
