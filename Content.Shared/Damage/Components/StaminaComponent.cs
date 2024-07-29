@@ -1,6 +1,4 @@
-using Content.Shared.Alert;
 using Robust.Shared.GameStates;
-using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom;
 
 namespace Content.Shared.Damage.Components;
@@ -53,7 +51,4 @@ public sealed partial class StaminaComponent : Component
     [DataField(customTypeSerializer: typeof(TimeOffsetSerializer)), AutoNetworkedField]
     [AutoPausedField]
     public TimeSpan NextUpdate = TimeSpan.Zero;
-
-    [DataField]
-    public ProtoId<AlertPrototype> StaminaAlert = "Stamina";
 }

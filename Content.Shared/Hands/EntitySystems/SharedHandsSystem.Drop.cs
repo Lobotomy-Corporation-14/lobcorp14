@@ -110,10 +110,7 @@ public abstract partial class SharedHandsSystem
             return false;
 
         var entity = hand.HeldEntity!.Value;
-
-        // if item is a fake item (like with pulling), just delete it rather than bothering with trying to drop it into the world
-        if (TryComp(entity, out VirtualItemComponent? @virtual))
-            _virtualSystem.DeleteVirtualItem((entity, @virtual), uid);
+        DoDrop(uid, hand, doDropInteraction: doDropInteraction, handsComp);
 
         if (TerminatingOrDeleted(entity))
             return true;
@@ -123,20 +120,23 @@ public abstract partial class SharedHandsSystem
             return true;
 
         var userXform = Transform(uid);
-        var isInContainer = ContainerSystem.IsEntityOrParentInContainer(uid, xform: userXform);
+        var isInContainer = ContainerSystem.IsEntityInContainer(uid);
 
-        // drop the item inside the container if the user is in a container
         if (targetDropLocation == null || isInContainer)
         {
-            TransformSystem.DropNextTo((entity, itemXform), (uid, userXform));
+            // If user is in a container, drop item into that container. Otherwise, attach to grid or map.\
+            // TODO recursively check upwards for containers
+
+            if (!isInContainer
+                || !ContainerSystem.TryGetContainingContainer(userXform.ParentUid, uid, out var container, skipExistCheck: true)
+                || !ContainerSystem.Insert((entity, itemXform), container))
+                TransformSystem.AttachToGridOrMap(entity, itemXform);
             return true;
         }
 
-        // otherwise, remove the item from their hands and place it at the calculated interaction range position
-        DoDrop(uid, hand, doDropInteraction: doDropInteraction, handsComp);
         var (itemPos, itemRot) = TransformSystem.GetWorldPositionRotation(entity);
         var origin = new MapCoordinates(itemPos, itemXform.MapID);
-        var target = TransformSystem.ToMapCoordinates(targetDropLocation.Value);
+        var target = targetDropLocation.Value.ToMap(EntityManager, TransformSystem);
         TransformSystem.SetWorldPositionRotation(entity, GetFinalDropCoordinates(uid, origin, target), itemRot);
         return true;
     }

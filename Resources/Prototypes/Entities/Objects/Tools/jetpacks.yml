@@ -40,7 +40,7 @@
       size: Huge
     - type: UserInterface
       interfaces:
-        enum.SharedGasTankUiKey.Key:
+        - key: enum.SharedGasTankUiKey.Key
           type: GasTankBoundUserInterface
     - type: Clothing
       sprite: Objects/Tanks/Jetpacks/blue.rsi
@@ -62,6 +62,7 @@
   id: ActionToggleJetpack
   name: Toggle jetpack
   description: Toggles the jetpack, giving you movement outside the station.
+  noSpawn: true
   components:
   - type: InstantAction
     icon:

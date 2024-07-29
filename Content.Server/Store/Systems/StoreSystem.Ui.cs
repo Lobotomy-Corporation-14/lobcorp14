@@ -10,7 +10,6 @@ using Content.Shared.FixedPoint;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Mind;
 using Content.Shared.Store;
-using Content.Shared.Store.Components;
 using Content.Shared.UserInterface;
 using Robust.Server.GameObjects;
 using Robust.Shared.Audio.Systems;
@@ -74,7 +73,7 @@ public sealed partial class StoreSystem
         if (!Resolve(uid, ref component))
             return;
 
-        _ui.CloseUi(uid, StoreUiKey.Key);
+        _ui.TryCloseAll(uid, StoreUiKey.Key);
     }
 
     /// <summary>
@@ -83,9 +82,13 @@ public sealed partial class StoreSystem
     /// <param name="user">The person who if opening the store ui. Listings are filtered based on this.</param>
     /// <param name="store">The store entity itself</param>
     /// <param name="component">The store component being refreshed.</param>
-    public void UpdateUserInterface(EntityUid? user, EntityUid store, StoreComponent? component = null)
+    /// <param name="ui"></param>
+    public void UpdateUserInterface(EntityUid? user, EntityUid store, StoreComponent? component = null, PlayerBoundUserInterface? ui = null)
     {
         if (!Resolve(store, ref component))
+            return;
+
+        if (ui == null && !_ui.TryGetUi(store, StoreUiKey.Key, out ui))
             return;
 
         //this is the person who will be passed into logic for all listing filtering.
@@ -110,12 +113,12 @@ public sealed partial class StoreSystem
         // only tell operatives to lock their uplink if it can be locked
         var showFooter = HasComp<RingerUplinkComponent>(store);
         var state = new StoreUpdateState(component.LastAvailableListings, allCurrency, showFooter, component.RefundAllowed);
-        _ui.SetUiState(store, StoreUiKey.Key, state);
+        _ui.SetUiState(ui, state);
     }
 
     private void OnRequestUpdate(EntityUid uid, StoreComponent component, StoreRequestUpdateInterfaceMessage args)
     {
-        UpdateUserInterface(args.Actor, GetEntity(args.Entity), component);
+        UpdateUserInterface(args.Session.AttachedEntity, GetEntity(args.Entity), component);
     }
 
     private void BeforeActivatableUiOpen(EntityUid uid, StoreComponent component, BeforeActivatableUIOpenEvent args)
@@ -136,7 +139,8 @@ public sealed partial class StoreSystem
             return;
         }
 
-        var buyer = msg.Actor;
+        if (msg.Session.AttachedEntity is not { Valid: true } buyer)
+            return;
 
         //verify that we can actually buy this listing and it wasn't added
         if (!ListingHasCategory(listing, component.Categories))
@@ -211,11 +215,11 @@ public sealed partial class StoreSystem
             {
                 HandleRefundComp(uid, component, actionId.Value);
 
-                if (listing.ProductUpgradeId != null)
+                if (listing.ProductUpgradeID != null)
                 {
                     foreach (var upgradeListing in component.Listings)
                     {
-                        if (upgradeListing.ID == listing.ProductUpgradeId)
+                        if (upgradeListing.ID == listing.ProductUpgradeID)
                         {
                             upgradeListing.ProductActionEntity = actionId.Value;
                             break;
@@ -225,7 +229,7 @@ public sealed partial class StoreSystem
             }
         }
 
-        if (listing is { ProductUpgradeId: not null, ProductActionEntity: not null })
+        if (listing is { ProductUpgradeID: not null, ProductActionEntity: not null })
         {
             if (listing.ProductActionEntity != null)
             {
@@ -255,12 +259,11 @@ public sealed partial class StoreSystem
         }
 
         //log dat shit.
-        _admin.Add(LogType.StorePurchase,
-            LogImpact.Low,
+        _admin.Add(LogType.StorePurchase, LogImpact.Low,
             $"{ToPrettyString(buyer):player} purchased listing \"{ListingLocalisationHelpers.GetLocalisedNameOrEntityName(listing, _prototypeManager)}\" from {ToPrettyString(uid)}");
 
         listing.PurchaseAmount++; //track how many times something has been purchased
-        _audio.PlayEntity(component.BuySuccessSound, msg.Actor, uid); //cha-ching!
+        _audio.PlayEntity(component.BuySuccessSound, msg.Session, uid); //cha-ching!
 
         UpdateUserInterface(buyer, uid, component);
     }
@@ -286,7 +289,8 @@ public sealed partial class StoreSystem
         if (proto.Cash == null || !proto.CanWithdraw)
             return;
 
-        var buyer = msg.Actor;
+        if (msg.Session.AttachedEntity is not { Valid: true } buyer)
+            return;
 
         FixedPoint2 amountRemaining = msg.Amount;
         var coordinates = Transform(buyer).Coordinates;
@@ -309,7 +313,7 @@ public sealed partial class StoreSystem
     {
         // TODO: Remove guardian/holopara
 
-        if (args.Actor is not { Valid: true } buyer)
+        if (args.Session.AttachedEntity is not { Valid: true } buyer)
             return;
 
         if (!IsOnStartingMap(uid, component))

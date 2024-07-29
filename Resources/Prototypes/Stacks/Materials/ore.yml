@@ -4,13 +4,7 @@
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: gold }
   spawn: GoldOre1
   maxCount: 30
-  
-- type: stack
-  id: DiamondOre
-  name: rough diamond
-  icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: diamond }
-  spawn: DiamondOre1
-  maxCount: 30
+  itemSize: 2
 
 - type: stack
   id: SteelOre
@@ -18,6 +12,7 @@
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: iron }
   spawn: SteelOre1
   maxCount: 30
+  itemSize: 2
 
 - type: stack
   id: PlasmaOre
@@ -25,6 +20,7 @@
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: plasma }
   spawn: PlasmaOre1
   maxCount: 30
+  itemSize: 2
 
 - type: stack
   id: SilverOre
@@ -32,6 +28,7 @@
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: silver }
   spawn: SilverOre1
   maxCount: 30
+  itemSize: 2
 
 - type: stack
   id: SpaceQuartz
@@ -39,6 +36,7 @@
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: spacequartz }
   spawn: SpaceQuartz1
   maxCount: 30
+  itemSize: 2
 
 - type: stack
   id: UraniumOre
@@ -46,6 +44,7 @@
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: uranium }
   spawn: UraniumOre1
   maxCount: 30
+  itemSize: 2
 
 
 - type: stack
@@ -54,6 +53,7 @@
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: bananium }
   spawn: BananiumOre1
   maxCount: 30
+  itemSize: 2
 
 - type: stack
   id: Coal
@@ -61,6 +61,7 @@
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: coal }
   spawn: Coal1
   maxCount: 30
+  itemSize: 2
 
 - type: stack
   id: SaltOre
@@ -68,3 +69,4 @@
   icon: { sprite: /Textures/Objects/Materials/ore.rsi, state: salt }
   spawn: Salt1
   maxCount: 30
+  itemSize: 2

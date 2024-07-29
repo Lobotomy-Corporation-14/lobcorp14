@@ -31,7 +31,7 @@
     - !type:PlantAdjustHealth
       amount: -0.5
     - !type:PlantAdjustMutationMod
-      probability: 0.3
+      prob: 0.3
       amount: 0.4
   metabolisms:
     Medicine:
@@ -115,10 +115,10 @@
     - !type:PlantAdjustNutrition
       amount: 0.05
     - !type:PlantAdjustWeeds
-      probability: 0.025
+      prob: 0.025
       amount: 1
     - !type:PlantAdjustPests
-      probability: 0.025
+      prob: 0.025
       amount: 1
     - !type:RobustHarvest {}
   metabolisms:
@@ -222,9 +222,6 @@
         - !type:OrganType
           type: Rat
           shouldHave: false
-        - !type:OrganType
-           type: Vox
-           shouldHave: false
         - !type:ReagentThreshold
           reagent: Ammonia
           min: 0.8
@@ -250,13 +247,6 @@
           groups:
             Brute: -5
             Burn: -5
-          types:
-            Bloodloss: -5
-      - !type:Oxygenate # ammonia displaces nitrogen in vox blood
-        conditions:
-        - !type:OrganType
-          type: Vox
-        factor: -4
 
 
 - type: reagent
@@ -273,12 +263,12 @@
   - !type:PlantAdjustNutrition
     amount: 0.1
   - !type:PlantAdjustPests
-    probability: 0.1
+    prob: 0.1
     amount: -1
   - !type:PlantAdjustHealth
     amount: 0.1
   - !type:PlantAffectGrowth
-    probability: 0.2
+    prob: 0.2
     amount: 1
   - !type:PlantDiethylamine {}
   metabolisms:

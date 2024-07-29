@@ -1,7 +1,9 @@
 using Content.Shared.Maps;
+using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Map;
 using Robust.Shared.Map.Components;
+using Robust.Shared.Physics.Components;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 using Robust.Shared.Timing;
@@ -16,14 +18,15 @@ public abstract class SharedWeatherSystem : EntitySystem
     [Dependency] private readonly ITileDefinitionManager _tileDefManager = default!;
     [Dependency] private readonly MetaDataSystem _metadata = default!;
     [Dependency] private readonly SharedAudioSystem _audio = default!;
-    [Dependency] private readonly SharedMapSystem _mapSystem = default!;
 
     private EntityQuery<BlockWeatherComponent> _blockQuery;
+    private EntityQuery<PhysicsComponent> _physicsQuery;
 
     public override void Initialize()
     {
         base.Initialize();
         _blockQuery = GetEntityQuery<BlockWeatherComponent>();
+        _physicsQuery = GetEntityQuery<PhysicsComponent>();
         SubscribeLocalEvent<WeatherComponent, EntityUnpausedEvent>(OnWeatherUnpaused);
     }
 
@@ -38,7 +41,9 @@ public abstract class SharedWeatherSystem : EntitySystem
         }
     }
 
-    public bool CanWeatherAffect(EntityUid uid, MapGridComponent grid, TileRef tileRef)
+    public bool CanWeatherAffect(
+        MapGridComponent grid,
+        TileRef tileRef)
     {
         if (tileRef.Tile.IsEmpty)
             return true;
@@ -48,9 +53,9 @@ public abstract class SharedWeatherSystem : EntitySystem
         if (!tileDef.Weather)
             return false;
 
-        var anchoredEntities = _mapSystem.GetAnchoredEntitiesEnumerator(uid, grid, tileRef.GridIndices);
+        var anchoredEnts = grid.GetAnchoredEntitiesEnumerator(tileRef.GridIndices);
 
-        while (anchoredEntities.MoveNext(out var ent))
+        while (anchoredEnts.MoveNext(out var ent))
         {
             if (_blockQuery.HasComponent(ent.Value))
                 return false;
@@ -149,22 +154,20 @@ public abstract class SharedWeatherSystem : EntitySystem
     /// </summary>
     public void SetWeather(MapId mapId, WeatherPrototype? proto, TimeSpan? endTime)
     {
-        if (!_mapSystem.TryGetMap(mapId, out var mapUid))
-            return;
-
-        var weatherComp = EnsureComp<WeatherComponent>(mapUid.Value);
+        var mapUid = MapManager.GetMapEntityId(mapId);
+        var weatherComp = EnsureComp<WeatherComponent>(mapUid);
 
         foreach (var (eProto, weather) in weatherComp.Weather)
         {
             // Reset cooldown if it's an existing one.
-            if (proto == null || eProto == proto.ID)
+            if (eProto == proto?.ID)
             {
                 weather.EndTime = endTime;
 
                 if (weather.State == WeatherState.Ending)
                     weather.State = WeatherState.Running;
 
-                Dirty(mapUid.Value, weatherComp);
+                Dirty(mapUid, weatherComp);
                 continue;
             }
 
@@ -174,12 +177,12 @@ public abstract class SharedWeatherSystem : EntitySystem
             if (weather.EndTime == null || weather.EndTime > end)
             {
                 weather.EndTime = end;
-                Dirty(mapUid.Value, weatherComp);
+                Dirty(mapUid, weatherComp);
             }
         }
 
         if (proto != null)
-            StartWeather(mapUid.Value, weatherComp, proto, endTime);
+            StartWeather(mapUid, weatherComp, proto, endTime);
     }
 
     /// <summary>
@@ -226,9 +229,9 @@ public abstract class SharedWeatherSystem : EntitySystem
     [Serializable, NetSerializable]
     protected sealed class WeatherComponentState : ComponentState
     {
-        public Dictionary<ProtoId<WeatherPrototype>, WeatherData> Weather;
+        public Dictionary<string, WeatherData> Weather;
 
-        public WeatherComponentState(Dictionary<ProtoId<WeatherPrototype>, WeatherData> weather)
+        public WeatherComponentState(Dictionary<string, WeatherData> weather)
         {
             Weather = weather;
         }

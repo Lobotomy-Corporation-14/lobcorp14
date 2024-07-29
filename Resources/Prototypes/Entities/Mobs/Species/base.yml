@@ -4,7 +4,6 @@
   - BaseMob
   - MobDamageable
   - MobCombat
-  - StripableInventoryBase
   id: BaseMobSpecies
   abstract: true
   components:
@@ -141,15 +140,18 @@
     - TemporaryBlindness
     - Pacified
     - StaminaModifier
-    - Flashed
+  - type: Reflect
+    enabled: false
+    reflectProb: 0
   - type: Body
     prototype: Human
     requiredLegs: 2
   - type: Identity
   - type: IdExaminable
   - type: Hands
-  - type: ComplexInteraction
   - type: Internals
+  - type: Inventory
+  - type: InventorySlots
   - type: FloatingVisuals
   - type: Climbing
   - type: Cuffable
@@ -187,13 +189,14 @@
     - NanoTrasen
   - type: CreamPied
   - type: Stripping
+  - type: Strippable
   - type: UserInterface
     interfaces:
-      enum.VoiceMaskUIKey.Key:
+      - key: enum.VoiceMaskUIKey.Key
         type: VoiceMaskBoundUserInterface
-      enum.HumanoidMarkingModifierKey.Key:
+      - key: enum.HumanoidMarkingModifierKey.Key
         type: HumanoidMarkingModifierBoundUserInterface
-      enum.StrippingUiKey.Key:
+      - key: enum.StrippingUiKey.Key
         type: StrippableBoundUserInterface
   - type: Puller
   - type: Speech
@@ -230,6 +233,7 @@
   id: BaseMobSpeciesOrganic
   abstract: true
   components:
+  - type: Flashable
   - type: Barotrauma
     damage:
       types:
@@ -244,7 +248,24 @@
         Heat: -0.07
       groups:
         Brute: -0.07
-
+  # Organs
+  - type: StatusEffects
+    allowed:
+    - Stun
+    - KnockedDown
+    - SlowedDown
+    - Stutter
+    - SeeingRainbows
+    - Electrocution
+    - ForcedSleep
+    - TemporaryBlindness
+    - Drunk
+    - SlurredSpeech
+    - RatvarianLanguage
+    - PressureImmunity
+    - Muted
+    - Pacified
+    - StaminaModifier
   - type: Blindable
   # Other
   - type: Temperature
@@ -285,11 +306,11 @@
 - type: entity
   save: false
   id: BaseSpeciesDummy
-  parent: InventoryBase
   abstract: true
   components:
   - type: Hands
-  - type: ComplexInteraction
+  - type: Inventory
+  - type: InventorySlots
   - type: ContainerContainer
   - type: Icon
     sprite: Mobs/Species/Human/parts.rsi
@@ -351,5 +372,5 @@
     requiredLegs: 2
   - type: UserInterface
     interfaces:
-      enum.HumanoidMarkingModifierKey.Key: # sure, this can go here too
+      - key: enum.HumanoidMarkingModifierKey.Key # sure, this can go here too
         type: HumanoidMarkingModifierBoundUserInterface

@@ -1,6 +1,4 @@
-using Content.Shared.EntityList;
 using Content.Shared.Whitelist;
-using Robust.Shared.Prototypes;
 
 namespace Content.Server.Gatherable.Components;
 
@@ -12,7 +10,7 @@ public sealed partial class GatherableComponent : Component
     ///     Whitelist for specifying the kind of tools can be used on a resource
     ///     Supports multiple tags.
     /// </summary>
-    [DataField(required: true)]
+    [DataField("whitelist", required: true)]
     public EntityWhitelist? ToolWhitelist;
 
     /// <summary>
@@ -20,20 +18,14 @@ public sealed partial class GatherableComponent : Component
     ///     (Tag1, Tag2, LootTableID1, LootTableID2 are placeholders for example)
     ///     --------------------
     ///     useMappedLoot: true
-    ///     toolWhitelist:
+    ///     whitelist:
     ///       tags:
     ///        - Tag1
     ///        - Tag2
-    ///     loot:
+    ///     mappedLoot:
     ///       Tag1: LootTableID1
     ///       Tag2: LootTableID2
     /// </summary>
-    [DataField]
-    public Dictionary<string, ProtoId<EntityLootTablePrototype>>? Loot = new();
-
-    /// <summary>
-    /// Random shift of the appearing entity during gathering
-    /// </summary>
-    [DataField]
-    public float GatherOffset = 0.3f;
+    [DataField("loot")]
+    public Dictionary<string, string>? MappedLoot = new();
 }

@@ -3,67 +3,68 @@ using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Interaction;
 using Content.Shared.Storage.Components;
 
-namespace Content.Shared.Placeable;
-
-public sealed class PlaceableSurfaceSystem : EntitySystem
+namespace Content.Shared.Placeable
 {
-    [Dependency] private readonly SharedHandsSystem _handsSystem = default!;
-
-    public override void Initialize()
+    public sealed class PlaceableSurfaceSystem : EntitySystem
     {
-        base.Initialize();
+        [Dependency] private readonly SharedHandsSystem _handsSystem = default!;
 
-        SubscribeLocalEvent<PlaceableSurfaceComponent, AfterInteractUsingEvent>(OnAfterInteractUsing);
-    }
+        public override void Initialize()
+        {
+            base.Initialize();
 
-    public void SetPlaceable(EntityUid uid, bool isPlaceable, PlaceableSurfaceComponent? surface = null)
-    {
-        if (!Resolve(uid, ref surface, false))
-            return;
+            SubscribeLocalEvent<PlaceableSurfaceComponent, AfterInteractUsingEvent>(OnAfterInteractUsing);
+        }
 
-        surface.IsPlaceable = isPlaceable;
-        Dirty(uid, surface);
-    }
+        public void SetPlaceable(EntityUid uid, bool isPlaceable, PlaceableSurfaceComponent? surface = null)
+        {
+            if (!Resolve(uid, ref surface, false))
+                return;
 
-    public void SetPlaceCentered(EntityUid uid, bool placeCentered, PlaceableSurfaceComponent? surface = null)
-    {
-        if (!Resolve(uid, ref surface))
-            return;
+            surface.IsPlaceable = isPlaceable;
+            Dirty(uid, surface);
+        }
 
-        surface.PlaceCentered = placeCentered;
-        Dirty(uid, surface);
-    }
+        public void SetPlaceCentered(EntityUid uid, bool placeCentered, PlaceableSurfaceComponent? surface = null)
+        {
+            if (!Resolve(uid, ref surface))
+                return;
 
-    public void SetPositionOffset(EntityUid uid, Vector2 offset, PlaceableSurfaceComponent? surface = null)
-    {
-        if (!Resolve(uid, ref surface))
-            return;
+            surface.PlaceCentered = placeCentered;
+            Dirty(uid, surface);
+        }
 
-        surface.PositionOffset = offset;
-        Dirty(uid, surface);
-    }
+        public void SetPositionOffset(EntityUid uid, Vector2 offset, PlaceableSurfaceComponent? surface = null)
+        {
+            if (!Resolve(uid, ref surface))
+                return;
 
-    private void OnAfterInteractUsing(EntityUid uid, PlaceableSurfaceComponent surface, AfterInteractUsingEvent args)
-    {
-        if (args.Handled || !args.CanReach)
-            return;
+            surface.PositionOffset = offset;
+            Dirty(uid, surface);
+        }
 
-        if (!surface.IsPlaceable)
-            return;
+        private void OnAfterInteractUsing(EntityUid uid, PlaceableSurfaceComponent surface, AfterInteractUsingEvent args)
+        {
+            if (args.Handled || !args.CanReach)
+                return;
 
-        // 99% of the time they want to dump the stuff inside on the table, they can manually place with q if they really need to.
-        // Just causes prediction CBT otherwise.
-        if (HasComp<DumpableComponent>(args.Used))
-            return;
+            if (!surface.IsPlaceable)
+                return;
 
-        if (!_handsSystem.TryDrop(args.User, args.Used))
-            return;
+            // 99% of the time they want to dump the stuff inside on the table, they can manually place with q if they really need to.
+            // Just causes prediction CBT otherwise.
+            if (HasComp<DumpableComponent>(args.Used))
+                return;
 
-        if (surface.PlaceCentered)
-            Transform(args.Used).LocalPosition = Transform(uid).LocalPosition + surface.PositionOffset;
-        else
-            Transform(args.Used).Coordinates = args.ClickLocation;
+            if (!_handsSystem.TryDrop(args.User, args.Used))
+                return;
 
-        args.Handled = true;
+            if (surface.PlaceCentered)
+                Transform(args.Used).LocalPosition = Transform(uid).LocalPosition + surface.PositionOffset;
+            else
+                Transform(args.Used).Coordinates = args.ClickLocation;
+
+            args.Handled = true;
+        }
     }
 }

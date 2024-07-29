@@ -1,6 +1,5 @@
 using System.Numerics;
 using Content.Shared.Interaction;
-using Robust.Server.GameObjects;
 using Robust.Shared.Containers;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
@@ -33,22 +32,20 @@ namespace Content.IntegrationTests.Tests.Interaction
             var sEntities = server.ResolveDependency<IEntityManager>();
             var mapManager = server.ResolveDependency<IMapManager>();
             var conSystem = sEntities.EntitySysManager.GetEntitySystem<SharedContainerSystem>();
-            var tSystem = sEntities.EntitySysManager.GetEntitySystem<TransformSystem>();
 
             EntityUid origin = default;
             EntityUid other = default;
             MapCoordinates mapCoordinates = default;
 
-            var map = await pair.CreateTestMap();
-
             await server.WaitAssertion(() =>
             {
-                var coordinates = map.MapCoords;
+                var mapId = mapManager.CreateMap();
+                var coordinates = new MapCoordinates(Vector2.Zero, mapId);
 
                 origin = sEntities.SpawnEntity(HumanId, coordinates);
                 other = sEntities.SpawnEntity(HumanId, coordinates);
                 conSystem.EnsureContainer<Container>(other, "InRangeUnobstructedTestOtherContainer");
-                mapCoordinates = tSystem.GetMapCoordinates(other);
+                mapCoordinates = sEntities.GetComponent<TransformComponent>(other).MapPosition;
             });
 
             await server.WaitIdleAsync();

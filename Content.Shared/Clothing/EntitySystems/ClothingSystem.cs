@@ -87,34 +87,28 @@ public abstract class ClothingSystem : EntitySystem
         foreach (HumanoidVisualLayers layer in layers)
         {
             if (!appearanceLayers.Contains(layer))
-                continue;
+                break;
 
             InventorySystem.InventorySlotEnumerator enumerator = _invSystem.GetSlotEnumerator(equipee);
 
             bool shouldLayerShow = true;
-            while (enumerator.NextItem(out EntityUid item, out SlotDefinition? slot))
+            while (enumerator.NextItem(out EntityUid item))
             {
                 if (TryComp(item, out HideLayerClothingComponent? comp))
                 {
-                    if (comp.Slots.Contains(layer))
+                    //Checks for mask toggling. TODO: Make a generic system for this
+                    if (comp.HideOnToggle && TryComp(item, out MaskComponent? mask) && TryComp(item, out ClothingComponent? clothing))
                     {
-                        if (TryComp(item, out ClothingComponent? clothing) && clothing.Slots == slot.SlotFlags)
+                        if (clothing.EquippedPrefix != mask.EquippedPrefix)
                         {
-                            //Checks for mask toggling. TODO: Make a generic system for this
-                            if (comp.HideOnToggle && TryComp(item, out MaskComponent? mask))
-                            {
-                                if (clothing.EquippedPrefix != mask.EquippedPrefix)
-                                {
-                                    shouldLayerShow = false;
-                                    break;
-                                }
-                            }
-                            else
-                            {
-                                shouldLayerShow = false;
-                                break;
-                            }
+                            shouldLayerShow = false;
+                            break;
                         }
+                    }
+                    else
+                    {
+                        shouldLayerShow = false;
+                        break;
                     }
                 }
             }
@@ -241,6 +235,9 @@ public abstract class ClothingSystem : EntitySystem
 
     public void SetLayerColor(ClothingComponent clothing, string slot, string mapKey, Color? color)
     {
+        if (clothing.ClothingVisuals == null)
+            return;
+
         foreach (var layer in clothing.ClothingVisuals[slot])
         {
             if (layer.MapKeys == null)
@@ -254,6 +251,9 @@ public abstract class ClothingSystem : EntitySystem
     }
     public void SetLayerState(ClothingComponent clothing, string slot, string mapKey, string state)
     {
+        if (clothing.ClothingVisuals == null)
+            return;
+
         foreach (var layer in clothing.ClothingVisuals[slot])
         {
             if (layer.MapKeys == null)

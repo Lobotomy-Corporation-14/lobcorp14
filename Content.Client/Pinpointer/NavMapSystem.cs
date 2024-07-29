@@ -14,50 +14,50 @@ public sealed partial class NavMapSystem : SharedNavMapSystem
 
     private void OnHandleState(EntityUid uid, NavMapComponent component, ref ComponentHandleState args)
     {
-        Dictionary<Vector2i, int[]> modifiedChunks;
-        Dictionary<NetEntity, NavMapBeacon> beacons;
+        if (args.Current is not NavMapComponentState state)
+            return;
 
-        switch (args.Current)
+        if (!state.FullState)
         {
-            case NavMapDeltaState delta:
+            foreach (var index in component.Chunks.Keys)
             {
-                modifiedChunks = delta.ModifiedChunks;
-                beacons = delta.Beacons;
-                foreach (var index in component.Chunks.Keys)
-                {
-                    if (!delta.AllChunks!.Contains(index))
-                        component.Chunks.Remove(index);
-                }
-
-                break;
+                if (!state.AllChunks!.Contains(index))
+                    component.Chunks.Remove(index);
             }
-            case NavMapState state:
+
+            foreach (var beacon in component.Beacons)
             {
-                modifiedChunks = state.Chunks;
-                beacons = state.Beacons;
-                foreach (var index in component.Chunks.Keys)
-                {
-                    if (!state.Chunks.ContainsKey(index))
-                        component.Chunks.Remove(index);
-                }
-
-                break;
+                if (!state.AllBeacons!.Contains(beacon))
+                    component.Beacons.Remove(beacon);
             }
-            default:
-                return;
         }
 
-        foreach (var (origin, chunk) in modifiedChunks)
+        else
+        {
+            foreach (var index in component.Chunks.Keys)
+            {
+                if (!state.Chunks.ContainsKey(index))
+                    component.Chunks.Remove(index);
+            }
+
+            foreach (var beacon in component.Beacons)
+            {
+                if (!state.Beacons.Contains(beacon))
+                    component.Beacons.Remove(beacon);
+            }
+        }
+
+        foreach (var ((category, origin), chunk) in state.Chunks)
         {
             var newChunk = new NavMapChunk(origin);
-            Array.Copy(chunk, newChunk.TileData, chunk.Length);
-            component.Chunks[origin] = newChunk;
+
+            foreach (var (atmosDirection, value) in chunk)
+                newChunk.TileData[atmosDirection] = value;
+
+            component.Chunks[(category, origin)] = newChunk;
         }
 
-        component.Beacons.Clear();
-        foreach (var (nuid, beacon) in beacons)
-        {
-            component.Beacons[nuid] = beacon;
-        }
+        foreach (var beacon in state.Beacons)
+            component.Beacons.Add(beacon);
     }
 }

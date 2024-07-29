@@ -6,7 +6,7 @@ using Robust.Shared.Console;
 
 namespace Content.Server.Announcements
 {
-    [AdminCommand(AdminFlags.Moderator)]
+    [AdminCommand(AdminFlags.Admin)]
     public sealed class AnnounceCommand : IConsoleCommand
     {
         public string Command => "announce";

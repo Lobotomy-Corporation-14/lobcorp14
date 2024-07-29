@@ -19,12 +19,14 @@
             !type:PhysShapeCircle
             radius: 0.2
     - type: InteractionOutline
+    # TODO: Nuke this shit
+    - type: OreVein
+      oreChance: 1.0
+      currentOre: SpaceShrooms
     - type: Gatherable
-      toolWhitelist:
+      whitelist:
         components:
           - Hands
-      loot:
-        All: SpaceshroomGather
     - type: Damageable
       damageContainer: Inorganic
       damageModifierSet: Wood
@@ -36,13 +38,6 @@
           behaviors:
             - !type:DoActsBehavior
               acts: [ "Destruction" ]
-
-- type: entityLootTable
-  id: SpaceshroomGather
-  entries:
-  - id: FoodSpaceshroom
-    amount: 1
-    maxAmount: 1
 
 - type: entity
   name: spaceshroom

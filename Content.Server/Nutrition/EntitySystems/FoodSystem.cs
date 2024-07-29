@@ -31,8 +31,6 @@ using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Utility;
 using System.Linq;
-using Robust.Server.GameObjects;
-using Content.Shared.Whitelist;
 
 namespace Content.Server.Nutrition.EntitySystems;
 
@@ -54,11 +52,9 @@ public sealed class FoodSystem : EntitySystem
     [Dependency] private readonly SharedHandsSystem _hands = default!;
     [Dependency] private readonly SharedInteractionSystem _interaction = default!;
     [Dependency] private readonly SolutionContainerSystem _solutionContainer = default!;
-    [Dependency] private readonly TransformSystem _transform = default!;
     [Dependency] private readonly StackSystem _stack = default!;
     [Dependency] private readonly StomachSystem _stomach = default!;
     [Dependency] private readonly UtensilSystem _utensil = default!;
-    [Dependency] private readonly EntityWhitelistSystem _whitelistSystem = default!;
 
     public const float MaxFeedDistance = 1.0f;
 
@@ -99,9 +95,6 @@ public sealed class FoodSystem : EntitySystem
         args.Handled = result.Handled;
     }
 
-    /// <summary>
-    /// Tries to feed the food item to the target entity
-    /// </summary>
     public (bool Success, bool Handled) TryFeed(EntityUid user, EntityUid target, EntityUid food, FoodComponent foodComp)
     {
         //Suppresses eating yourself and alive mobs
@@ -157,7 +150,7 @@ public sealed class FoodSystem : EntitySystem
             return (false, true);
 
         // TODO make do-afters account for fixtures in the range check.
-        if (!_transform.GetMapCoordinates(user).InRange(_transform.GetMapCoordinates(target), MaxFeedDistance))
+        if (!Transform(user).MapPosition.InRange(Transform(target).MapPosition, MaxFeedDistance))
         {
             var message = Loc.GetString("interaction-system-user-interaction-cannot-reach");
             _popup.PopupEntity(message, user, user);
@@ -192,9 +185,9 @@ public sealed class FoodSystem : EntitySystem
             BreakOnDamage = true,
             MovementThreshold = 0.01f,
             DistanceThreshold = MaxFeedDistance,
-            // do-after will stop if item is dropped when trying to feed someone else
-            // or if the item started out in the user's own hands
-            NeedHand = forceFeed || _hands.IsHolding(user, food),
+            // Mice and the like can eat without hands.
+            // TODO maybe set this based on some CanEatWithoutHands event or component?
+            NeedHand = forceFeed,
         };
 
         _doAfter.TryStartDoAfter(doAfterArgs);
@@ -332,7 +325,7 @@ public sealed class FoodSystem : EntitySystem
         }
 
         //We're empty. Become trash.
-        var position = _transform.GetMapCoordinates(food);
+        var position = Transform(food).MapPosition;
         var finisher = Spawn(component.Trash, position);
 
         // If the user is holding the item
@@ -413,7 +406,7 @@ public sealed class FoodSystem : EntitySystem
             if (comp.SpecialDigestible == null)
                 continue;
             // Check if the food is in the whitelist
-            if (_whitelistSystem.IsWhitelistPass(comp.SpecialDigestible, food))
+            if (comp.SpecialDigestible.IsValid(food, EntityManager))
                 return true;
             // They can only eat whitelist food and the food isn't in the whitelist. It's not edible.
             return false;

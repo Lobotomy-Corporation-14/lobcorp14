@@ -1,7 +1,6 @@
 using Content.Shared.Configurable;
 using Content.Shared.Interaction;
 using Content.Shared.Tools.Components;
-using Content.Shared.Tools.Systems;
 using Robust.Server.GameObjects;
 using Robust.Shared.Containers;
 using Robust.Shared.Player;
@@ -12,7 +11,6 @@ namespace Content.Server.Configurable;
 public sealed class ConfigurationSystem : EntitySystem
 {
     [Dependency] private readonly UserInterfaceSystem _uiSystem = default!;
-    [Dependency] private readonly SharedToolSystem _toolSystem = default!;
 
     public override void Initialize()
     {
@@ -26,14 +24,16 @@ public sealed class ConfigurationSystem : EntitySystem
 
     private void OnInteractUsing(EntityUid uid, ConfigurationComponent component, InteractUsingEvent args)
     {
-        // TODO use activatable ui system
         if (args.Handled)
             return;
 
-        if (!_toolSystem.HasQuality(args.Used, component.QualityNeeded))
+        if (!TryComp(args.Used, out ToolComponent? tool) || !tool.Qualities.Contains(component.QualityNeeded))
             return;
 
-        args.Handled = _uiSystem.TryOpenUi(uid, ConfigurationUiKey.Key, args.User);
+        if (!TryComp(args.User, out ActorComponent? actor))
+            return;
+
+        args.Handled = _uiSystem.TryOpen(uid, ConfigurationUiKey.Key, actor.PlayerSession);
     }
 
     private void OnStartup(EntityUid uid, ConfigurationComponent component, ComponentStartup args)
@@ -43,8 +43,8 @@ public sealed class ConfigurationSystem : EntitySystem
 
     private void UpdateUi(EntityUid uid, ConfigurationComponent component)
     {
-        if (_uiSystem.HasUi(uid, ConfigurationUiKey.Key))
-            _uiSystem.SetUiState(uid, ConfigurationUiKey.Key, new ConfigurationBoundUserInterfaceState(component.Config));
+        if (_uiSystem.TryGetUi(uid, ConfigurationUiKey.Key, out var ui))
+            _uiSystem.SetUiState(ui, new ConfigurationBoundUserInterfaceState(component.Config));
     }
 
     private void OnUpdate(EntityUid uid, ConfigurationComponent component, ConfigurationUpdatedMessage args)
@@ -70,7 +70,7 @@ public sealed class ConfigurationSystem : EntitySystem
 
     private void OnInsert(EntityUid uid, ConfigurationComponent component, ContainerIsInsertingAttemptEvent args)
     {
-        if (!_toolSystem.HasQuality(args.EntityUid, component.QualityNeeded))
+        if (!TryComp(args.EntityUid, out ToolComponent? tool) || !tool.Qualities.Contains(component.QualityNeeded))
             return;
 
         args.Cancel();

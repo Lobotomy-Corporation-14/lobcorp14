@@ -163,8 +163,8 @@ public sealed partial class EnsnareableSystem
     public void UpdateAlert(EntityUid target, EnsnareableComponent component)
     {
         if (!component.IsEnsnared)
-            _alerts.ClearAlert(target, component.EnsnaredAlert);
+            _alerts.ClearAlert(target, AlertType.Ensnared);
         else
-            _alerts.ShowAlert(target, component.EnsnaredAlert);
+            _alerts.ShowAlert(target, AlertType.Ensnared);
     }
 }

@@ -5,7 +5,7 @@ using Robust.Shared.Console;
 
 namespace Content.Server.Administration.Commands
 {
-    [AdminCommand(AdminFlags.NameColor)]
+    [AdminCommand(AdminFlags.Admin)]
     internal sealed class SetAdminOOC : IConsoleCommand
     {
         public string Command => "setadminooc";

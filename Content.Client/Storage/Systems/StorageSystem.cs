@@ -1,5 +1,4 @@
-using System.Linq;
-using System.Numerics;
+﻿using System.Linq;
 using Content.Client.Animations;
 using Content.Shared.Hands;
 using Content.Shared.Storage;
@@ -69,7 +68,7 @@ public sealed class StorageSystem : SharedStorageSystem
 
     public void CloseStorageWindow(Entity<StorageComponent?> entity)
     {
-        if (!Resolve(entity, ref entity.Comp, false))
+        if (!Resolve(entity, ref entity.Comp))
             return;
 
         if (!_openStorages.Contains((entity, entity.Comp)))
@@ -112,7 +111,7 @@ public sealed class StorageSystem : SharedStorageSystem
         if (!Resolve(entity, ref entity.Comp, false))
             return;
 
-        if (entity.Comp.ClientOpenInterfaces.GetValueOrDefault(StorageComponent.StorageUiKey.Key) is not { } bui)
+        if (entity.Comp.OpenInterfaces.GetValueOrDefault(StorageComponent.StorageUiKey.Key) is not { } bui)
             return;
 
         bui.Close();
@@ -142,15 +141,15 @@ public sealed class StorageSystem : SharedStorageSystem
     {
         if (!_timing.IsFirstTimePredicted)
             return;
-        
-        if (TransformSystem.InRange(finalCoords, initialCoords, 0.1f) ||
+
+        if (finalCoords.InRange(EntityManager, TransformSystem, initialCoords, 0.1f) ||
             !Exists(initialCoords.EntityId) || !Exists(finalCoords.EntityId))
         {
             return;
         }
 
-        var finalMapPos = TransformSystem.ToMapCoordinates(finalCoords).Position;
-        var finalPos = Vector2.Transform(finalMapPos, TransformSystem.GetInvWorldMatrix(initialCoords.EntityId));
+        var finalMapPos = finalCoords.ToMapPos(EntityManager, TransformSystem);
+        var finalPos = TransformSystem.GetInvWorldMatrix(initialCoords.EntityId).Transform(finalMapPos);
 
         _entityPickupAnimation.AnimateEntityPickup(item, initialCoords, finalPos, initialAngle);
     }

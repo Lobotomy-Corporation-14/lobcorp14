@@ -92,7 +92,7 @@
   name: wrench
   parent: BaseItem
   id: Wrench
-  description: 'A common tool for assembly and disassembly. Remember: lefty latchy, righty removey.'
+  description: 'A common tool for assembly and disassembly. Remember: righty tighty, lefty loosey.'
   components:
   - type: EmitSoundOnLand
     sound:
@@ -216,11 +216,11 @@
     inHandsOnly: true
   - type: UserInterface
     interfaces:
-      enum.NetworkConfiguratorUiKey.List:
+      - key: enum.NetworkConfiguratorUiKey.List
         type: NetworkConfiguratorBoundUserInterface
-      enum.NetworkConfiguratorUiKey.Configure:
+      - key: enum.NetworkConfiguratorUiKey.Configure
         type: NetworkConfiguratorBoundUserInterface
-      enum.NetworkConfiguratorUiKey.Link:
+      - key: enum.NetworkConfiguratorUiKey.Link
         type: NetworkConfiguratorBoundUserInterface
   - type: Tag
     tags:
@@ -272,11 +272,11 @@
         - DoorElectronicsConfigurator
     - type: UserInterface
       interfaces:
-        enum.NetworkConfiguratorUiKey.List:
+        - key: enum.NetworkConfiguratorUiKey.List
           type: NetworkConfiguratorBoundUserInterface
-        enum.NetworkConfiguratorUiKey.Configure:
+        - key: enum.NetworkConfiguratorUiKey.Configure
           type: NetworkConfiguratorBoundUserInterface
-        enum.NetworkConfiguratorUiKey.Link:
+        - key: enum.NetworkConfiguratorUiKey.Link
           type: NetworkConfiguratorBoundUserInterface
     - type: StaticPrice
       price: 56
@@ -304,7 +304,7 @@
   - type: Tool
     qualities:
       - Screwing
-    speedModifier: 1.5
+    speed: 1.5
     useSound: /Audio/Items/drill_use.ogg
   - type: MultipleTool
     statusShowBehavior: true
@@ -389,8 +389,8 @@
     price: 100
   - type: UserInterface
     interfaces:
-      enum.RcdUiKey.Key:
-        type: RCDMenuBoundUserInterface
+    - key: enum.RcdUiKey.Key
+      type: RCDMenuBoundUserInterface
   - type: ActivatableUI
     key: enum.RcdUiKey.Key
 
@@ -479,7 +479,7 @@
   - type: Tool
     qualities:
       - Screwing
-    speedModifier: 1.2 # Kept for future adjustments. Currently 1.2x for balance
+    speed: 1.2 # Kept for future adjustments. Currently 1.2x for balance
     useSound: /Audio/Items/drill_use.ogg
   - type: ToolTileCompatible
   - type: MultipleTool

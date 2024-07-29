@@ -2,8 +2,6 @@ using System.Diagnostics.CodeAnalysis;
 using Content.Server.NPC.Components;
 using Content.Server.NPC.HTN;
 using Content.Shared.CCVar;
-using Content.Shared.Mind;
-using Content.Shared.Mind.Components;
 using Content.Shared.Mobs;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.NPC;
@@ -49,10 +47,6 @@ namespace Content.Server.NPC.Systems
         public void OnPlayerNPCDetach(EntityUid uid, HTNComponent component, PlayerDetachedEvent args)
         {
             if (_mobState.IsIncapacitated(uid) || TerminatingOrDeleted(uid))
-                return;
-
-            // This NPC has an attached mind, so it should not wake up.
-            if (TryComp<MindContainerComponent>(uid, out var mindContainer) && mindContainer.HasMind)
                 return;
 
             WakeNPC(uid, component);

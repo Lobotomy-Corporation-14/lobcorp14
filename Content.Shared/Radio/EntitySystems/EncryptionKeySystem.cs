@@ -6,8 +6,10 @@ using Content.Shared.Hands.EntitySystems;
 using Content.Shared.Interaction;
 using Content.Shared.Popups;
 using Content.Shared.Radio.Components;
+using Content.Shared.Tools;
 using Content.Shared.Tools.Components;
 using Content.Shared.Wires;
+using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
 using Robust.Shared.Containers;
 using Robust.Shared.Network;
@@ -31,7 +33,6 @@ public sealed partial class EncryptionKeySystem : EntitySystem
     [Dependency] private readonly SharedContainerSystem _container = default!;
     [Dependency] private readonly SharedAudioSystem _audio = default!;
     [Dependency] private readonly SharedHandsSystem _hands = default!;
-    [Dependency] private readonly SharedWiresSystem _wires = default!;
 
     public override void Initialize()
     {
@@ -105,7 +106,7 @@ public sealed partial class EncryptionKeySystem : EntitySystem
             TryInsertKey(uid, component, args);
         }
         else if (TryComp<ToolComponent>(args.Used, out var tool)
-                 && _tool.HasQuality(args.Used, component.KeysExtractionMethod, tool)
+                 && tool.Qualities.Contains(component.KeysExtractionMethod)
                  && component.KeyContainer.ContainedEntities.Count > 0) // dont block deconstruction
         {
             args.Handled = true;
@@ -151,7 +152,7 @@ public sealed partial class EncryptionKeySystem : EntitySystem
             return;
         }
 
-        if (!_wires.IsPanelOpen(uid))
+        if (TryComp<WiresPanelComponent>(uid, out var panel) && !panel.Open)
         {
             _popup.PopupClient(Loc.GetString("encryption-keys-panel-locked"), uid, args.User);
             return;
@@ -185,15 +186,8 @@ public sealed partial class EncryptionKeySystem : EntitySystem
 
         if (component.Channels.Count > 0)
         {
-            using (args.PushGroup(nameof(EncryptionKeyComponent)))
-            {
-                args.PushMarkup(Loc.GetString("examine-encryption-channels-prefix"));
-                AddChannelsExamine(component.Channels,
-                    component.DefaultChannel,
-                    args,
-                    _protoManager,
-                    "examine-encryption-channel");
-            }
+            args.PushMarkup(Loc.GetString("examine-encryption-channels-prefix"));
+            AddChannelsExamine(component.Channels, component.DefaultChannel, args, _protoManager, "examine-encryption-channel");
         }
     }
 

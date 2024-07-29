@@ -53,7 +53,7 @@ namespace Content.Server.Mapping
             }
 
 #if DEBUG
-            shell.WriteLine(Loc.GetString("cmd-mapping-warning"));
+            shell.WriteError(Loc.GetString("cmd-mapping-warning"));
 #endif
 
             MapId mapId;

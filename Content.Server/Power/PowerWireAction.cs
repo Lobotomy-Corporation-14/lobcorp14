@@ -159,7 +159,7 @@ public sealed partial class PowerWireAction : BaseWireAction
     {
         base.Initialize();
 
-        _electrocutionSystem = EntityManager.System<ElectrocutionSystem>();
+        _electrocutionSystem = EntitySystem.Get<ElectrocutionSystem>();
     }
 
     // This should add a wire into the entity's state, whether it be

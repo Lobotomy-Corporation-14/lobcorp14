@@ -10,7 +10,7 @@
     allowSpeech: true
     name: ghost-role-information-remilia-name
     description: ghost-role-information-remilia-description
-    rules: ghost-role-information-familiar-rules
+    rules: ghost-role-information-remilia-rules
   - type: GhostTakeoverAvailable
   - type: Grammar
     attributes:
@@ -43,9 +43,7 @@
     allowSpeech: true
     name: ghost-role-information-cerberus-name
     description: ghost-role-information-cerberus-description
-    rules: ghost-role-information-familiar-rules
-    raffle:
-      settings: default
+    rules: ghost-role-information-cerberus-rules
   - type: GhostTakeoverAvailable
   - type: MeleeWeapon
     altDisarm: false

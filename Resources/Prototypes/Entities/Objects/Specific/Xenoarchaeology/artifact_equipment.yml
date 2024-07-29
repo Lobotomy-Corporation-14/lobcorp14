@@ -7,7 +7,7 @@
     - type: Transform
       noRot: true
     - type: AccessReader
-      access: [["Research"], ["Cargo"]]
+      access: [["Research"], ["Salvage"]]
     - type: Lock
     - type: ResistLocker
     - type: Sprite

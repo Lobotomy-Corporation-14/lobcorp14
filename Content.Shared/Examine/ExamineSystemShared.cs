@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using Content.Shared.Eye.Blinding.Components;
-using Content.Shared.Ghost;
 using Content.Shared.Interaction;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Mobs.Systems;
@@ -45,8 +44,6 @@ namespace Content.Shared.Examine
 
         protected const float ExamineBlurrinessMult = 2.5f;
 
-        private EntityQuery<GhostComponent> _ghostQuery;
-
         /// <summary>
         ///     Creates a new examine tooltip with arbitrary info.
         /// </summary>
@@ -55,10 +52,6 @@ namespace Content.Shared.Examine
         public bool IsInDetailsRange(EntityUid examiner, EntityUid entity)
         {
             if (IsClientSide(entity))
-                return true;
-
-            // Ghosts can see everything.
-            if (_ghostQuery.HasComp(examiner))
                 return true;
 
             // check if the mob is in critical or dead
@@ -217,8 +210,8 @@ namespace Content.Shared.Examine
         public bool InRangeUnOccluded(EntityUid origin, EntityUid other, float range = ExamineRange, Ignored? predicate = null, bool ignoreInsideBlocker = true)
         {
             var entMan = IoCManager.Resolve<IEntityManager>();
-            var originPos = _transform.GetMapCoordinates(origin);
-            var otherPos = _transform.GetMapCoordinates(other);
+            var originPos = entMan.GetComponent<TransformComponent>(origin).MapPosition;
+            var otherPos = entMan.GetComponent<TransformComponent>(other).MapPosition;
 
             return InRangeUnOccluded(originPos, otherPos, range, predicate, ignoreInsideBlocker);
         }
@@ -226,7 +219,7 @@ namespace Content.Shared.Examine
         public bool InRangeUnOccluded(EntityUid origin, EntityCoordinates other, float range = ExamineRange, Ignored? predicate = null, bool ignoreInsideBlocker = true)
         {
             var entMan = IoCManager.Resolve<IEntityManager>();
-            var originPos = _transform.GetMapCoordinates(origin);
+            var originPos = entMan.GetComponent<TransformComponent>(origin).MapPosition;
             var otherPos = other.ToMap(entMan, _transform);
 
             return InRangeUnOccluded(originPos, otherPos, range, predicate, ignoreInsideBlocker);
@@ -235,7 +228,7 @@ namespace Content.Shared.Examine
         public bool InRangeUnOccluded(EntityUid origin, MapCoordinates other, float range = ExamineRange, Ignored? predicate = null, bool ignoreInsideBlocker = true)
         {
             var entMan = IoCManager.Resolve<IEntityManager>();
-            var originPos = _transform.GetMapCoordinates(origin);
+            var originPos = entMan.GetComponent<TransformComponent>(origin).MapPosition;
 
             return InRangeUnOccluded(originPos, other, range, predicate, ignoreInsideBlocker);
         }

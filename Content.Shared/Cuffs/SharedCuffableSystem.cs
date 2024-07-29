@@ -71,7 +71,6 @@ namespace Content.Shared.Cuffs
             SubscribeLocalEvent<CuffableComponent, IsUnequippingAttemptEvent>(OnUnequipAttempt);
             SubscribeLocalEvent<CuffableComponent, BeingPulledAttemptEvent>(OnBeingPulledAttempt);
             SubscribeLocalEvent<CuffableComponent, BuckleAttemptEvent>(OnBuckleAttemptEvent);
-            SubscribeLocalEvent<CuffableComponent, UnbuckleAttemptEvent>(OnUnbuckleAttemptEvent);
             SubscribeLocalEvent<CuffableComponent, GetVerbsEvent<Verb>>(AddUncuffVerb);
             SubscribeLocalEvent<CuffableComponent, UnCuffDoAfterEvent>(OnCuffableDoAfter);
             SubscribeLocalEvent<CuffableComponent, PullStartedMessage>(OnPull);
@@ -80,18 +79,12 @@ namespace Content.Shared.Cuffs
             SubscribeLocalEvent<CuffableComponent, PickupAttemptEvent>(CheckAct);
             SubscribeLocalEvent<CuffableComponent, AttackAttemptEvent>(CheckAct);
             SubscribeLocalEvent<CuffableComponent, UseAttemptEvent>(CheckAct);
-            SubscribeLocalEvent<CuffableComponent, InteractionAttemptEvent>(CheckInteract);
+            SubscribeLocalEvent<CuffableComponent, InteractionAttemptEvent>(CheckAct);
 
             SubscribeLocalEvent<HandcuffComponent, AfterInteractEvent>(OnCuffAfterInteract);
             SubscribeLocalEvent<HandcuffComponent, MeleeHitEvent>(OnCuffMeleeHit);
             SubscribeLocalEvent<HandcuffComponent, AddCuffDoAfterEvent>(OnAddCuffDoAfter);
             SubscribeLocalEvent<HandcuffComponent, VirtualItemDeletedEvent>(OnCuffVirtualItemDeleted);
-        }
-
-        private void CheckInteract(Entity<CuffableComponent> ent, ref InteractionAttemptEvent args)
-        {
-            if (!ent.Comp.CanStillInteract)
-                args.Cancelled = true;
         }
 
         private void OnUncuffAttempt(ref UncuffAttemptEvent args)
@@ -179,9 +172,9 @@ namespace Content.Shared.Cuffs
             _actionBlocker.UpdateCanMove(uid);
 
             if (component.CanStillInteract)
-                _alerts.ClearAlert(uid, component.CuffedAlert);
+                _alerts.ClearAlert(uid, AlertType.Handcuffed);
             else
-                _alerts.ShowAlert(uid, component.CuffedAlert);
+                _alerts.ShowAlert(uid, AlertType.Handcuffed);
 
             var ev = new CuffedStateChangeEvent();
             RaiseLocalEvent(uid, ref ev);
@@ -196,33 +189,21 @@ namespace Content.Shared.Cuffs
                 args.Cancel();
         }
 
-        private void OnBuckleAttempt(Entity<CuffableComponent> ent, EntityUid? user, ref bool cancelled, bool buckling, bool popup)
+        private void OnBuckleAttemptEvent(EntityUid uid, CuffableComponent component, ref BuckleAttemptEvent args)
         {
-            if (cancelled || user != ent.Owner)
+            // if someone else is doing it, let it pass.
+            if (args.UserEntity != uid)
                 return;
 
-            if (!TryComp<HandsComponent>(ent, out var hands) || ent.Comp.CuffedHandCount != hands.Count)
+            if (!TryComp<HandsComponent>(uid, out var hands) || component.CuffedHandCount != hands.Count)
                 return;
 
-            cancelled = true;
-            if (!popup)
-                return;
-
-            var message = buckling
+            args.Cancelled = true;
+            var message = args.Buckling
                 ? Loc.GetString("handcuff-component-cuff-interrupt-buckled-message")
                 : Loc.GetString("handcuff-component-cuff-interrupt-unbuckled-message");
 
-            _popup.PopupClient(message, ent, user);
-        }
-
-        private void OnBuckleAttemptEvent(Entity<CuffableComponent> ent, ref BuckleAttemptEvent args)
-        {
-            OnBuckleAttempt(ent, args.User, ref args.Cancelled, true, args.Popup);
-        }
-
-        private void OnUnbuckleAttemptEvent(Entity<CuffableComponent> ent, ref UnbuckleAttemptEvent args)
-        {
-            OnBuckleAttempt(ent, args.User, ref args.Cancelled, false, args.Popup);
+            _popup.PopupClient(message, uid, args.UserEntity);
         }
 
         private void OnPull(EntityUid uid, CuffableComponent component, PullMessage args)
@@ -503,7 +484,7 @@ namespace Content.Shared.Cuffs
                 BreakOnWeightlessMove = false,
                 BreakOnDamage = true,
                 NeedHand = true,
-                DistanceThreshold = 1f // shorter than default but still feels good
+                DistanceThreshold = 0.3f
             };
 
             if (!_doAfter.TryStartDoAfter(doAfterEventArgs))
@@ -580,10 +561,7 @@ namespace Content.Shared.Cuffs
                 return;
             }
 
-
-            var ev = new ModifyUncuffDurationEvent(user, target, isOwner ? cuff.BreakoutTime : cuff.UncuffTime);
-            RaiseLocalEvent(user, ref ev);
-            var uncuffTime = ev.Duration;
+            var uncuffTime = isOwner ? cuff.BreakoutTime : cuff.UncuffTime;
 
             if (isOwner)
             {
@@ -603,7 +581,7 @@ namespace Content.Shared.Cuffs
                 BreakOnDamage = true,
                 NeedHand = true,
                 RequireCanInteract = false, // Trust in UncuffAttemptEvent
-                DistanceThreshold = 1f // shorter than default but still feels good
+                DistanceThreshold = 0.3f
             };
 
             if (!_doAfter.TryStartDoAfter(doAfterEventArgs))

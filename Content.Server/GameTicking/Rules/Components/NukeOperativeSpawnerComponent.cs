@@ -1,4 +1,5 @@
-using Robust.Shared.Prototypes;
+using Content.Shared.Roles;
+using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 
 namespace Content.Server.GameTicking.Rules.Components;
 
@@ -7,5 +8,12 @@ namespace Content.Server.GameTicking.Rules.Components;
 /// and providing loadout + name for the operative on spawn.
 /// TODO: Remove once systems can request spawns from the ghost role system directly.
 /// </summary>
-[RegisterComponent, EntityCategory("Spawner")]
-public sealed partial class NukeOperativeSpawnerComponent : Component;
+[RegisterComponent]
+public sealed partial class NukeOperativeSpawnerComponent : Component
+{
+    [DataField("name", required:true)]
+    public string OperativeName = default!;
+
+    [DataField]
+    public NukeopSpawnPreset SpawnDetails = default!;
+}

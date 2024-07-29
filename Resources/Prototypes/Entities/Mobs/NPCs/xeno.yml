@@ -21,10 +21,15 @@
         true
       NavSmash: !type:Bool
         true
+  - type: Tool
+    speed: 1.5
+    qualities:
+      - Prying
   - type: Prying
-    pryPowered: true
-    force: true
-    speedModifier: 1.5
+    pryPowered: !type:Bool
+        true
+    force: !type:Bool
+      true
     useSound:
       path: /Audio/Items/crowbar.ogg
   - type: Reactive
@@ -35,7 +40,6 @@
     factions:
     - Xeno
   - type: Hands
-  - type: ComplexInteraction
   - type: Sprite
     drawdepth: Mobs
     sprite: Mobs/Aliens/Xenos/burrower.rsi
@@ -100,8 +104,6 @@
     name: ghost-role-information-xeno-name
     description: ghost-role-information-xeno-description
     rules: ghost-role-information-xeno-rules
-    raffle:
-      settings: default
   - type: GhostTakeoverAvailable
   - type: TypingIndicator
     proto: alien

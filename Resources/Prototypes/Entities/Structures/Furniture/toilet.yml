@@ -51,17 +51,6 @@
       disposals: !type:Container
   - type: Physics
     bodyType: Static
-  - type: Fixtures
-    fixtures:
-      fix1:
-        shape:
-          !type:PhysShapeCircle
-          radius: 0.4
-        density: 190
-        mask:
-        - MachineMask
-        layer:
-        - None
   - type: Construction
     graph: Toilet
     node: toilet
@@ -77,8 +66,8 @@
     price: 25
   - type: UserInterface
     interfaces:
-      enum.DisposalUnitUiKey.Key:
-        type: DisposalUnitBoundUserInterface
+    - key: enum.DisposalUnitUiKey.Key
+      type: DisposalUnitBoundUserInterface
   - type: RatKingRummageable
   - type: SolutionContainerManager
     solutions:
@@ -115,10 +104,7 @@
   components:
   - type: SolutionContainerManager
     solutions:
-      drainBuffer:
-        maxVol: 100
-      tank:
-        maxVol: 500
+      toilet:
         reagents:
         - ReagentId: Water
           Quantity: 180

@@ -78,8 +78,7 @@ namespace Content.Server.Database
             await using var db = await GetDbImpl();
 
             var exempt = await GetBanExemptionCore(db, userId);
-            var newPlayer = userId == null || !await PlayerRecordExists(db, userId.Value);
-            var query = MakeBanLookupQuery(address, userId, hwId, db, includeUnbanned: false, exempt, newPlayer)
+            var query = MakeBanLookupQuery(address, userId, hwId, db, includeUnbanned: false, exempt)
                 .OrderByDescending(b => b.BanTime);
 
             var ban = await query.FirstOrDefaultAsync();
@@ -99,8 +98,7 @@ namespace Content.Server.Database
             await using var db = await GetDbImpl();
 
             var exempt = await GetBanExemptionCore(db, userId);
-            var newPlayer = !await db.PgDbContext.Player.AnyAsync(p => p.UserId == userId);
-            var query = MakeBanLookupQuery(address, userId, hwId, db, includeUnbanned, exempt, newPlayer);
+            var query = MakeBanLookupQuery(address, userId, hwId, db, includeUnbanned, exempt);
 
             var queryBans = await query.ToArrayAsync();
             var bans = new List<ServerBanDef>(queryBans.Length);
@@ -124,8 +122,7 @@ namespace Content.Server.Database
             ImmutableArray<byte>? hwId,
             DbGuardImpl db,
             bool includeUnbanned,
-            ServerBanExemptFlags? exemptFlags,
-            bool newPlayer)
+            ServerBanExemptFlags? exemptFlags)
         {
             DebugTools.Assert(!(address == null && userId == null && hwId == null));
 
@@ -144,9 +141,7 @@ namespace Content.Server.Database
             {
                 var newQ = db.PgDbContext.Ban
                     .Include(p => p.Unban)
-                    .Where(b => b.Address != null
-                                && EF.Functions.ContainsOrEqual(b.Address.Value, address)
-                                && !(b.ExemptFlags.HasFlag(ServerBanExemptFlags.BlacklistedRange) && !newPlayer));
+                    .Where(b => b.Address != null && EF.Functions.ContainsOrEqual(b.Address.Value, address));
 
                 query = query == null ? newQ : query.Union(newQ);
             }
@@ -172,9 +167,6 @@ namespace Content.Server.Database
 
             if (exemptFlags is { } exempt)
             {
-                if (exempt != ServerBanExemptFlags.None)
-                    exempt |= ServerBanExemptFlags.BlacklistedRange; // Any kind of exemption should bypass BlacklistedRange
-
                 query = query.Where(b => (b.ExemptFlags & exempt) == 0);
             }
 
@@ -535,26 +527,22 @@ WHERE to_tsvector('english'::regconfig, a.message) @@ websearch_to_tsquery('engl
             return time;
         }
 
-        private async Task<DbGuardImpl> GetDbImpl(
-            CancellationToken cancel = default,
-            [CallerMemberName] string? name = null)
+        private async Task<DbGuardImpl> GetDbImpl([CallerMemberName] string? name = null)
         {
             LogDbOp(name);
 
             await _dbReadyTask;
-            await _prefsSemaphore.WaitAsync(cancel);
+            await _prefsSemaphore.WaitAsync();
 
             if (_msLag > 0)
-                await Task.Delay(_msLag, cancel);
+                await Task.Delay(_msLag);
 
             return new DbGuardImpl(this, new PostgresServerDbContext(_options));
         }
 
-        protected override async Task<DbGuard> GetDb(
-            CancellationToken cancel = default,
-            [CallerMemberName] string? name = null)
+        protected override async Task<DbGuard> GetDb([CallerMemberName] string? name = null)
         {
-            return await GetDbImpl(cancel, name);
+            return await GetDbImpl(name);
         }
 
         private sealed class DbGuardImpl : DbGuard

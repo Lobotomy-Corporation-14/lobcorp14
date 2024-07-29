@@ -1,6 +1,5 @@
 ﻿#nullable enable
 using System.Linq;
-using Content.IntegrationTests.Pair;
 using Content.Server.Ghost.Roles;
 using Content.Server.Ghost.Roles.Components;
 using Content.Server.Players;
@@ -27,7 +26,7 @@ public sealed class GhostRoleTests
 ";
 
     /// <summary>
-    /// This is a simple test that just checks if a player can take a ghost role and then regain control of their
+    /// This is a simple test that just checks if a player can take a ghost roll and then regain control of their
     /// original entity without encountering errors.
     /// </summary>
     [Test]
@@ -35,14 +34,11 @@ public sealed class GhostRoleTests
     {
         await using var pair = await PoolManager.GetServerClient(new PoolSettings
         {
-            Dirty = true,
             DummyTicker = false,
             Connected = true
         });
         var server = pair.Server;
         var client = pair.Client;
-
-        var mapData = await pair.CreateTestMap();
 
         var entMan = server.ResolveDependency<IEntityManager>();
         var sPlayerMan = server.ResolveDependency<Robust.Server.Player.IPlayerManager>();
@@ -55,7 +51,7 @@ public sealed class GhostRoleTests
         EntityUid originalMob = default;
         await server.WaitPost(() =>
         {
-            originalMob = entMan.SpawnEntity(null, mapData.GridCoords);
+            originalMob = entMan.SpawnEntity(null, MapCoordinates.Nullspace);
             mindSystem.TransferTo(originalMindId, originalMob, true);
         });
 
@@ -73,12 +69,12 @@ public sealed class GhostRoleTests
         Assert.That(entMan.HasComponent<GhostComponent>(ghost));
         Assert.That(ghost, Is.Not.EqualTo(originalMob));
         Assert.That(session.ContentData()?.Mind, Is.EqualTo(originalMindId));
-        Assert.That(originalMind.OwnedEntity, Is.EqualTo(originalMob), $"Original mob: {originalMob}, Ghost: {ghost}");
+        Assert.That(originalMind.OwnedEntity, Is.EqualTo(originalMob));
         Assert.That(originalMind.VisitingEntity, Is.EqualTo(ghost));
 
         // Spawn ghost takeover entity.
         EntityUid ghostRole = default;
-        await server.WaitPost(() => ghostRole = entMan.SpawnEntity("GhostRoleTestEntity", mapData.GridCoords));
+        await server.WaitPost(() => ghostRole = entMan.SpawnEntity("GhostRoleTestEntity", MapCoordinates.Nullspace));
 
         // Take the ghost role
         await server.WaitPost(() =>

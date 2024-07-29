@@ -1,5 +1,4 @@
-﻿using Content.Server.Ghost.Roles.Raffles;
-using Content.Server.Mind.Commands;
+﻿using Content.Server.Mind.Commands;
 using Content.Shared.Roles;
 
 namespace Content.Server.Ghost.Roles.Components
@@ -14,10 +13,6 @@ namespace Content.Server.Ghost.Roles.Components
 
         [DataField("rules")] private string _roleRules = "ghost-role-component-default-rules";
 
-        // TODO ROLE TIMERS
-        // Actually make use of / enforce this requirement?
-        // Why is this even here.
-        // Move to ghost role prototype & respect CCvars.GameRoleTimerOverride
         [DataField("requirements")]
         public HashSet<JobRequirement>? Requirements;
 
@@ -44,7 +39,7 @@ namespace Content.Server.Ghost.Roles.Components
             set
             {
                 _roleName = value;
-                IoCManager.Resolve<IEntityManager>().System<GhostRoleSystem>().UpdateAllEui();
+                EntitySystem.Get<GhostRoleSystem>().UpdateAllEui();
             }
         }
 
@@ -56,7 +51,7 @@ namespace Content.Server.Ghost.Roles.Components
             set
             {
                 _roleDescription = value;
-                IoCManager.Resolve<IEntityManager>().System<GhostRoleSystem>().UpdateAllEui();
+                EntitySystem.Get<GhostRoleSystem>().UpdateAllEui();
             }
         }
 
@@ -68,7 +63,7 @@ namespace Content.Server.Ghost.Roles.Components
             set
             {
                 _roleRules = value;
-                IoCManager.Resolve<IEntityManager>().System<GhostRoleSystem>().UpdateAllEui();
+                EntitySystem.Get<GhostRoleSystem>().UpdateAllEui();
             }
         }
 
@@ -92,12 +87,5 @@ namespace Content.Server.Ghost.Roles.Components
         [ViewVariables(VVAccess.ReadWrite)]
         [DataField("reregister")]
         public bool ReregisterOnGhost { get; set; } = true;
-
-        /// <summary>
-        /// If set, ghost role is raffled, otherwise it is first-come-first-serve.
-        /// </summary>
-        [DataField("raffle")]
-        [Access(typeof(GhostRoleSystem), Other = AccessPermissions.ReadWriteExecute)] // FIXME Friends
-        public GhostRoleRaffleConfig? RaffleConfig { get; set; }
     }
 }

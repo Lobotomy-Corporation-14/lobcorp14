@@ -10,8 +10,6 @@ using Robust.Client.GameObjects;
 using Robust.Client.UserInterface.Controls;
 using Robust.Client.UserInterface.CustomControls;
 using Robust.Client.UserInterface.XAML;
-using Robust.Client.ResourceManagement;
-using Robust.Client.Graphics;
 using Robust.Shared.Prototypes;
 
 namespace Content.Client.Lathe.UI;
@@ -21,8 +19,6 @@ public sealed partial class LatheMenu : DefaultWindow
 {
     [Dependency] private readonly IEntityManager _entityManager = default!;
     [Dependency] private readonly IPrototypeManager _prototypeManager = default!;
-    [Dependency] private readonly IResourceCache _resources = default!;
-
     private EntityUid _owner;
     private readonly SpriteSystem _spriteSystem;
     private readonly LatheSystem _lathe;
@@ -78,6 +74,9 @@ public sealed partial class LatheMenu : DefaultWindow
     /// </summary>
     public void PopulateRecipes()
     {
+        if (!_entityManager.TryGetComponent<LatheComponent>(_owner, out var component))
+            return;
+
         var recipesToShow = new List<LatheRecipePrototype>();
         foreach (var recipe in Recipes)
         {
@@ -105,13 +104,12 @@ public sealed partial class LatheMenu : DefaultWindow
         RecipeList.Children.Clear();
         foreach (var prototype in sortedRecipesToShow)
         {
-            EntityPrototype? recipeProto = null;
-            if (_prototypeManager.TryIndex(prototype.Result, out EntityPrototype? entityProto) && entityProto != null)
-                recipeProto = entityProto;
-
+            var icon = prototype.Icon == null
+                ? _spriteSystem.GetPrototypeIcon(prototype.Result).Default
+                : _spriteSystem.Frame0(prototype.Icon);
             var canProduce = _lathe.CanProduce(_owner, prototype, quantity);
 
-            var control = new RecipeControl(prototype, () => GenerateTooltipText(prototype), canProduce, recipeProto);
+            var control = new RecipeControl(prototype, () => GenerateTooltipText(prototype), canProduce, icon);
             control.OnButtonPressed += s =>
             {
                 if (!int.TryParse(AmountLineEdit.Text, out var amount) || amount <= 0)
@@ -208,23 +206,14 @@ public sealed partial class LatheMenu : DefaultWindow
     /// <param name="queue"></param>
     public void PopulateQueueList(List<LatheRecipePrototype> queue)
     {
-        QueueList.DisposeAllChildren();
-
+        QueueList.Clear();
         var idx = 1;
         foreach (var recipe in queue)
         {
-            var queuedRecipeBox = new BoxContainer();
-            queuedRecipeBox.Orientation = BoxContainer.LayoutOrientation.Horizontal;
-
-            var queuedRecipeProto = new EntityPrototypeView();
-            queuedRecipeBox.AddChild(queuedRecipeProto);
-            if (_prototypeManager.TryIndex(recipe.Result, out EntityPrototype? entityProto) && entityProto != null)
-                queuedRecipeProto.SetPrototype(entityProto);
-
-            var queuedRecipeLabel = new Label();
-            queuedRecipeLabel.Text = $"{idx}. {recipe.Name}";
-            queuedRecipeBox.AddChild(queuedRecipeLabel);
-            QueueList.AddChild(queuedRecipeBox);
+            var icon = recipe.Icon == null
+                ? _spriteSystem.GetPrototypeIcon(recipe.Result).Default
+                : _spriteSystem.Frame0(recipe.Icon);
+            QueueList.AddItem($"{idx}. {recipe.Name}", icon);
             idx++;
         }
     }
@@ -234,10 +223,9 @@ public sealed partial class LatheMenu : DefaultWindow
         FabricatingContainer.Visible = recipe != null;
         if (recipe == null)
             return;
-
-        if (_prototypeManager.TryIndex(recipe.Result, out EntityPrototype? entityProto) && entityProto != null)
-            FabricatingEntityProto.SetPrototype(entityProto);
-
+        Icon.Texture = recipe.Icon == null
+            ? _spriteSystem.GetPrototypeIcon(recipe.Result).Default
+            : _spriteSystem.Frame0(recipe.Icon);
         NameLabel.Text = $"{recipe.Name}";
     }
 

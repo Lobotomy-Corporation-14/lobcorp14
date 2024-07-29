@@ -14,7 +14,6 @@ using Content.Server.Maps;
 using Content.Server.RoundEnd;
 using Content.Shared.Administration.Managers;
 using Content.Shared.CCVar;
-using Content.Shared.GameTicking.Components;
 using Content.Shared.Prototypes;
 using Robust.Server.ServerStatus;
 using Robust.Shared.Asynchronous;
@@ -41,7 +40,7 @@ public sealed partial class ServerApi : IPostInjectInit
         CCVars.PanicBunkerCountDeadminnedAdmins.Name,
         CCVars.PanicBunkerShowReason.Name,
         CCVars.PanicBunkerMinAccountAge.Name,
-        CCVars.PanicBunkerMinOverallMinutes.Name,
+        CCVars.PanicBunkerMinOverallHours.Name,
         CCVars.PanicBunkerCustomReason.Name,
     ];
 
