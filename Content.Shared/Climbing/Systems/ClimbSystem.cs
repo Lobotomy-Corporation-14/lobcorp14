@@ -307,7 +307,8 @@ public sealed partial class ClimbSystem : VirtualController
                 ("climbable", climbable));
         }
 
-        _popupSystem.PopupPredicted(selfMessage, othersMessage, uid, user);
+        _popupSystem.PopupEntity(othersMessage, uid, Filter.PvsExcept(user, entityManager: EntityManager), true);
+        _popupSystem.PopupClient(selfMessage, uid, user);
     }
 
     /// <summary>
