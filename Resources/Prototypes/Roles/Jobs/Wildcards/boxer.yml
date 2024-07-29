@@ -20,6 +20,6 @@
     gloves: ClothingHandsGlovesBoxingRed
     shoes: ClothingShoesColorRed
     belt: ClothingBeltChampion
-  innerClothingSkirt: UniformShortsRedWithTop
-  satchel: ClothingBackpackSatchelFilled
-  duffelbag: ClothingBackpackDuffelFilled
+  #storage:
+    #back:
+    #- Stuff

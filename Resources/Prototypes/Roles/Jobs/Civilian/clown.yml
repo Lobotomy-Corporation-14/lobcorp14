@@ -36,5 +36,7 @@
     pocket2: ClownRecorder
     id: ClownPDA
     ears: ClothingHeadsetService
-  satchel: ClothingBackpackSatchelClownFilled
-  duffelbag: ClothingBackpackDuffelClownFilled
+  storage:
+    back:
+    - RubberStampClown
+    - CrayonRainbow

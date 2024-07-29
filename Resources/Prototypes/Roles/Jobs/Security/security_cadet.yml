@@ -37,6 +37,7 @@
     belt: ClothingBeltSecurityFilled
     pocket1: WeaponPistolMk58
     pocket2: BookSecurity
-  innerClothingSkirt: ClothingUniformJumpskirtColorRed
-  satchel: ClothingBackpackSatchelSecurityFilled
-  duffelbag: ClothingBackpackDuffelSecurityFilled
+  storage:
+    back:
+    - Flash
+    - MagazinePistol

@@ -20,6 +20,8 @@ namespace Content.Server.Cargo.Systems
 {
     public sealed partial class CargoSystem
     {
+        [Dependency] private readonly SharedTransformSystem _transformSystem = default!;
+
         /// <summary>
         /// How much time to wait (in seconds) before increasing bank accounts balance.
         /// </summary>
@@ -38,6 +40,7 @@ namespace Content.Server.Cargo.Systems
             SubscribeLocalEvent<CargoOrderConsoleComponent, BoundUIOpenedEvent>(OnOrderUIOpened);
             SubscribeLocalEvent<CargoOrderConsoleComponent, ComponentInit>(OnInit);
             SubscribeLocalEvent<CargoOrderConsoleComponent, InteractUsingEvent>(OnInteractUsing);
+            SubscribeLocalEvent<CargoOrderConsoleComponent, BankBalanceUpdatedEvent>(OnOrderBalanceUpdated);
             Reset();
         }
 
@@ -172,19 +175,27 @@ namespace Content.Server.Cargo.Systems
 
             var tradeDestination = TryFulfillOrder(stationData, order, orderDatabase);
 
-            if (tradeDestination == null)
+            _idCardSystem.TryFindIdCard(player, out var idCard);
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
+            order.SetApproverData(idCard.Comp?.FullName, idCard.Comp?.JobTitle);
+
+            if (!ev.Handled)
             {
                 ConsolePopup(args.Session, Loc.GetString("cargo-console-unfulfilled"));
                 PlayDenySound(uid, component);
                 return;
             }
 
-            _idCardSystem.TryFindIdCard(player, out var idCard);
-            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-            order.SetApproverData(idCard.Comp?.FullName, idCard.Comp?.JobTitle);
+            order.Approved = true;
             _audio.PlayPvs(component.ConfirmSound, uid);
 
-            ConsolePopup(args.Session, Loc.GetString("cargo-console-trade-station", ("destination", MetaData(tradeDestination.Value).EntityName)));
+            var message = Loc.GetString("cargo-console-unlock-approved-order-broadcast",
+                ("productName", Loc.GetString(order.ProductName)),
+                ("orderAmount", order.OrderQuantity),
+                ("approver", order.Approver ?? string.Empty),
+                ("cost", cost));
+            _radio.SendRadioMessage(uid, message, component.AnnouncementChannel, uid, escapeMarkup: false);
+            ConsolePopup(args.Actor, Loc.GetString("cargo-console-trade-station", ("destination", MetaData(ev.FulfillmentEntity.Value).EntityName)));
 
             // Log order approval
             _adminLogger.Add(LogType.Action, LogImpact.Low,
@@ -297,6 +308,15 @@ namespace Content.Server.Cargo.Systems
 
         #endregion
 
+
+        private void OnOrderBalanceUpdated(Entity<CargoOrderConsoleComponent> ent, ref BankBalanceUpdatedEvent args)
+        {
+            if (!_uiSystem.IsUiOpen(ent.Owner, CargoConsoleUiKey.Orders))
+                return;
+
+            UpdateOrderState(ent, args.Station);
+        }
+
         private void UpdateOrderState(EntityUid consoleUid, EntityUid? station)
         {
             if (station == null ||
@@ -392,6 +412,7 @@ namespace Content.Server.Cargo.Systems
 
             // Approve it now
             order.SetApproverData(dest, sender);
+            order.Approved = true;
 
             // Log order addition
             _adminLogger.Add(LogType.Action, LogImpact.Low,
@@ -472,6 +493,9 @@ namespace Content.Server.Cargo.Systems
             // Create the item itself
             var item = Spawn(order.ProductId, spawn);
 
+            // Ensure the item doesn't start anchored
+            _transformSystem.Unanchor(item, Transform(item));
+
             // Create a sheet of paper to write the order details on
             var printed = EntityManager.SpawnEntity(paperProto, spawn);
             if (TryComp<PaperComponent>(printed, out var paper))
@@ -484,6 +508,7 @@ namespace Content.Server.Cargo.Systems
                         "cargo-console-paper-print-text",
                         ("orderNumber", order.OrderId),
                         ("itemName", MetaData(item).EntityName),
+                        ("orderQuantity", order.OrderQuantity),
                         ("requester", order.Requester),
                         ("reason", order.Reason),
                         ("approver", order.Approver ?? string.Empty)),

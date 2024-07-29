@@ -38,6 +38,6 @@
     outerClothing: ClothingOuterCoatRD
     id: RnDPDA
     ears: ClothingHeadsetRD
-  innerClothingSkirt: ClothingUniformJumpskirtResearchDirector
-  satchel: ClothingBackpackSatchelResearchDirectorFilled
-  duffelbag: ClothingBackpackDuffelResearchDirectorFilled
+  storage:
+    back:
+    - Flash

@@ -9,6 +9,7 @@
       drink:
         maxVol: 100
   - type: Drink
+  - type: Shakeable
   - type: FitsInDispenser
     solution: drink
   - type: DrawableSolution
@@ -31,6 +32,10 @@
   - type: PhysicalComposition
     materialComposition:
       Steel: 50
+  - type: ReactionMixer
+    mixOnInteract: false
+    reactionTypes:
+    - Shake
 
 - type: entity
   parent: DrinkGlassBase

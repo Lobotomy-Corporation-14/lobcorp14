@@ -180,6 +180,9 @@
         - MobMask
         layer:
         - MobLayer
+  - type: Speech
+    speechVerb: SmallMob
+    speechSounds: Cluck
   - type: Tag
     tags:
     - DoorBumpOpener
@@ -417,6 +420,7 @@
     allowMovement: true
     name: ghost-role-information-mothroach-name
     description: ghost-role-information-mothroach-description
+    rules: ghost-role-information-freeagent-rules
   - type: Fixtures
     fixtures:
       fix1:
@@ -432,6 +436,9 @@
   - type: Speech
     speechVerb: Moth
     speechSounds: Squeak
+    allowedEmotes: ['Chitter', 'Squeak']
+  - type: FaxableObject
+    insertingState: inserting_mothroach
   - type: MothAccent
   - type: Sprite
     sprite: Mobs/Animals/mothroach.rsi
@@ -815,6 +822,7 @@
   - type: Speech
     speechVerb: Arachnid
     speechSounds: Arachnid
+    allowedEmotes: ['Click', 'Chitter']
   - type: DamageStateVisuals
     states:
       Alive:
@@ -1040,7 +1048,10 @@
 
 - type: entity
   name: kangaroo
-  parent: [ SimpleMobBase, MobCombat ]
+  parent:
+  - SimpleMobBase
+  - MobCombat
+  - StripableInventoryBase
   id: MobKangaroo
   description: A large marsupial herbivore. It has powerful hind legs, with nails that resemble long claws.
   components:
@@ -1070,15 +1081,9 @@
     templateId: kangaroo
   - type: ReplacementAccent
     accent: kangaroo
-  - type: InventorySlots
-  - type: Strippable
   - type: Butcherable
     spawned:
     - id: FoodMeat
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -1096,6 +1101,7 @@
     prob: 0.25
     name: ghost-role-information-kangaroo-name
     description: ghost-role-information-kangaroo-description
+    rules: ghost-role-information-nonantagonist-rules
   - type: GhostTakeoverAvailable
   - type: Vocal
     sounds:
@@ -1141,7 +1147,7 @@
 - type: entity
   name: genetic ancestor
   id: MobBaseAncestor
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   description: The genetic bipedal ancestor of... Uh... Something. Yeah, there's definitely something on the station that descended from whatever this is.
   abstract: true
   components:
@@ -1149,7 +1155,8 @@
   - type: Inventory
     templateId: monkey
     speciesId: monkey
-  - type: InventorySlots
+  - type: Deathgasp
+    prototype: MonkeyDeathgasp
   - type: Cuffable
   - type: RotationVisuals
     defaultRotation: 90
@@ -1166,11 +1173,6 @@
         layer:
         - MobLayer
   - type: Stripping
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: Sprite
     drawdepth: Mobs
     layers:
@@ -1193,6 +1195,7 @@
       state: "creampie_human"
       visible: false
   - type: Hands
+  - type: ComplexInteraction
   - type: GenericVisualizer
     visuals:
       enum.CreamPiedVisuals.Creamed:
@@ -1246,6 +1249,17 @@
     tags:
     - VimPilot
     - DoorBumpOpener
+  - type: Reactive
+    groups:
+      Flammable: [ Touch ]
+      Extinguish: [ Touch ]
+    reactions:
+    - reagents: [ Water, SpaceCleaner ]
+      methods: [ Touch ]
+      effects:
+      - !type:WashCreamPieReaction
+
+
 
 - type: entity
   name: monkey
@@ -1267,6 +1281,7 @@
     makeSentient: true
     name: ghost-role-information-monkey-name
     description: ghost-role-information-monkey-description
+    rules: ghost-role-information-nonantagonist-rules
   - type: GhostTakeoverAvailable
   - type: Clumsy
     clumsyDamage:
@@ -1277,6 +1292,7 @@
         Burn: 3
     clumsySound:
       path: /Audio/Animals/monkey_scream.ogg
+
 
 - type: entity
   name: monkey
@@ -1301,6 +1317,9 @@
     makeSentient: true
     name: ghost-role-information-monkey-name
     description: ghost-role-information-monkey-description
+    rules: ghost-role-information-syndicate-monkey-reinforcement-rules
+    raffle:
+      settings: default
   - type: GhostTakeoverAvailable
   - type: Loadout
     prototypes: [SyndicateOperativeGearMonkey]
@@ -1338,9 +1357,9 @@
     speechVerb: Reptilian
   - type: Vocal
     sounds:
-      Male: UnisexReptilian
-      Female: UnisexReptilian
-      Unsexed: UnisexReptilian
+      Male: MaleReptilian
+      Female: FemaleReptilian
+      Unsexed: MaleReptilian
   - type: TypingIndicator
     proto: lizard
   - type: InteractionPopup
@@ -1420,6 +1439,23 @@
     spawned:
     - id: FoodMeat
       amount: 2
+  - type: AlwaysRevolutionaryConvertible
+  - type: GhostTakeoverAvailable
+  - type: SentienceTarget
+    flavorKind: station-event-random-sentience-flavor-kobold
+  - type: GhostRole
+    prob: 0.1
+    makeSentient: true
+    name: ghost-role-information-kobold-name
+    description: ghost-role-information-kobold-description
+    rules: ghost-role-information-nonantagonist-rules
+
+- type: entity
+  name: kobold
+  id: MobKobold
+  parent: MobBaseKobold
+  description: Cousins to the sentient race of lizard people, kobolds blend in with their natural habitat and are as nasty as monkeys; ready to pull out your hair and stab you to death.
+  components:
   - type: Clumsy
     clumsyDamage:
       types:
@@ -1442,7 +1478,7 @@
 - type: entity
   name: guidebook monkey
   parent: MobMonkey
-  noSpawn: true
+  categories: [ HideSpawnMenu ]
   id: MobGuidebookMonkey
   description: A hopefully helpful monkey whose only purpose in life is for you to click on. Does this count as having a monkey give you a tutorial?
   components:
@@ -1462,6 +1498,7 @@
     allowMovement: true
     name: ghost-role-information-mouse-name
     description: ghost-role-information-mouse-description
+    rules: ghost-role-information-freeagent-rules
   - type: GhostTakeoverAvailable
   - type: Speech
     speechSounds: Squeak
@@ -1481,6 +1518,7 @@
         state: mouse-0
   - type: Item
     size: Tiny
+    heldPrefix: 0
   - type: Clothing
     quickEquip: false
     sprite: Mobs/Animals/mouse.rsi
@@ -1566,6 +1604,7 @@
     tags:
     - Trash
     - VimPilot
+    - ChefPilot
     - Mouse
     - Meat
   - type: Respirator
@@ -1652,6 +1691,9 @@
         Base: dead-1
       Dead:
         Base: splat-1
+  - type: Item
+    size: Tiny
+    heldPrefix: 1
 
 - type: entity
   parent: MobMouse
@@ -1678,6 +1720,9 @@
         Base: dead-2
       Dead:
         Base: splat-2
+  - type: Item
+    size: Tiny
+    heldPrefix: 2
 
 - type: entity
   name: lizard #Weh
@@ -2046,11 +2091,13 @@
     states:
       Alive:
         Base: snake
+      Critical:
+        Base: dead
       Dead:
         Base: dead
   - type: Butcherable
     spawned:
-    - id: FoodMeat
+    - id: FoodMeatSnake
       amount: 1
   - type: InteractionPopup
     successChance: 0.6
@@ -2114,6 +2161,7 @@
       0: Alive
       90: Dead
   - type: MeleeWeapon
+    altDisarm: false
     angle: 0
     animation: WeaponArcBite
     soundHit:
@@ -2129,7 +2177,7 @@
     solution: melee
     generated:
       reagents:
-      - ReagentId: Toxin
+      - ReagentId: Mechanotoxin
         Quantity: 1
   - type: MeleeChemicalInjector
     transferAmount: 0.75
@@ -2152,6 +2200,7 @@
   - type: Speech
     speechVerb: Arachnid
     speechSounds: Arachnid
+    allowedEmotes: ['Click', 'Chitter']
   - type: Vocal
     sounds:
       Male: UnisexArachnid
@@ -2163,17 +2212,10 @@
     tags:
     - DoorBumpOpener
     - FootstepSound
-  - type: Tool # Open door from xeno.yml.
-    speed: 1.5
-    qualities:
-      - Prying
-    useSound:
-      path: /Audio/Items/crowbar.ogg
-  - type: Prying
-    pryPowered: !type:Bool
-        true
-    force: !type:Bool
-      true
+  - type: Prying # Open door from xeno.yml.
+    pryPowered: true
+    force: true
+    speedModifier: 1.5
     useSound:
       path: /Audio/Items/crowbar.ogg
   - type: PassiveDamage # Slight passive regen. Assuming one damage type, comes out to about 4 damage a minute from base.yml.
@@ -2205,6 +2247,9 @@
       makeSentient: true
       name: ghost-role-information-giant-spider-name
       description: ghost-role-information-giant-spider-description
+      rules: ghost-role-information-giant-spider-rules
+      raffle:
+        settings: short
     - type: GhostTakeoverAvailable
 
 - type: entity
@@ -2236,6 +2281,7 @@
     - type: Spider
       webPrototype: SpiderWebClown
     - type: MeleeWeapon
+      altDisarm: false
       angle: 0
       animation: WeaponArcBite
       soundHit:
@@ -2253,8 +2299,20 @@
       bloodReagent: Laughter
 
 - type: entity
+  name: wizard spider
+  parent: MobGiantSpider
+  id: MobGiantSpiderWizard
+  description: This spider looks a little magical
+  suffix: Wizard
+  components:
+  - type: Accentless
+    removes:
+    - type: ReplacementAccent
+      accent: xeno  #let this wizard speak
+
+- type: entity
   name: possum
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   id: MobPossum
   description: '"O Possum! My Possum!" -- Walt Whitman, 1865'
   components:
@@ -2279,12 +2337,6 @@
   - type: Inventory
     speciesId: possum
     templateId: pet
-  - type: InventorySlots
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -2329,7 +2381,7 @@
 
 - type: entity
   name: raccoon
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   id: MobRaccoon
   description: Trash panda!
   components:
@@ -2354,12 +2406,6 @@
   - type: Inventory
     speciesId: possum #close enough
     templateId: pet
-  - type: InventorySlots
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -2386,7 +2432,7 @@
 
 - type: entity
   name: fox
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   id: MobFox
   description: They're a fox.
   components:
@@ -2418,12 +2464,6 @@
   - type: Inventory
     speciesId: fox
     templateId: pet
-  - type: InventorySlots
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -2440,7 +2480,7 @@
     interactFailureString: petting-failure-generic
     interactSuccessSpawn: EffectHearts
     interactSuccessSound:
-      path: /Audio/Animals/fox_squeak.ogg
+      collection: Fox
   - type: Grammar
     attributes:
       gender: epicene
@@ -2468,7 +2508,7 @@
 
 - type: entity
   name: corgi
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   id: MobCorgi
   description: Finally, a space corgi!
   components:
@@ -2495,12 +2535,6 @@
   - type: Inventory
     speciesId: dog
     templateId: pet
-  - type: InventorySlots
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -2604,7 +2638,6 @@
   - type: Inventory
     speciesId: puppy
     templateId: pet
-  - type: InventorySlots
   - type: DamageStateVisuals
     states:
       Alive:
@@ -2619,7 +2652,7 @@
 
 - type: entity
   name: cat
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   id: MobCat
   description: Feline pet, very funny.
   components:
@@ -2644,12 +2677,6 @@
   - type: Inventory
     speciesId: cat
     templateId: pet
-  - type: InventorySlots
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -2724,6 +2751,8 @@
     allowMovement: true
     description: ghost-role-information-SyndiCat-description
     rules: ghost-role-information-SyndiCat-rules
+    raffle:
+      settings: default
   - type: GhostTakeoverAvailable
   - type: AutoImplant
     implants:
@@ -2731,6 +2760,17 @@
   - type: NpcFactionMember
     factions:
     - Syndicate
+  - type: MeleeWeapon
+    altDisarm: false
+    angle: 0
+    animation: WeaponArcBite
+    soundHit:
+      path: /Audio/Effects/bite.ogg
+    damage:
+      types:
+        Slash: 6
+        Piercing: 6
+        Structural: 15
 
 - type: entity
   name: space cat
@@ -2815,7 +2855,7 @@
 
 - type: entity
   name: sloth
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   id: MobSloth
   description: Very slow animal. For people with low energy.
   components:
@@ -2843,12 +2883,6 @@
   - type: Inventory
     speciesId: sloth
     templateId: pet
-  - type: InventorySlots
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -2875,7 +2909,7 @@
 
 - type: entity
   name: ferret
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   id: MobFerret
   description: Just a silly little guy!
   components:
@@ -2900,12 +2934,6 @@
   - type: Inventory
     speciesId: fox #close enough
     templateId: pet
-  - type: InventorySlots
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -2933,7 +2961,7 @@
 
 - type: entity
   name: hamster
-  parent: [ SimpleMobBase, MobCombat ]
+  parent: [ SimpleMobBase, MobCombat, StripableInventoryBase]
   id: MobHamster
   description: A cute, fluffy, robust hamster.
   components:
@@ -2943,6 +2971,7 @@
     allowMovement: true
     name: ghost-role-information-hamster-name
     description: ghost-role-information-hamster-description
+    rules: ghost-role-information-nonantagonist-rules
   - type: GhostTakeoverAvailable
   - type: Speech
     speechVerb: SmallMob
@@ -2993,12 +3022,6 @@
   - type: Inventory
     speciesId: hamster
     templateId: hamster
-  - type: InventorySlots
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -3031,6 +3054,7 @@
   - type: Tag
     tags:
     - VimPilot
+    - ChefPilot
     - Trash
     - Hamster
     - Meat
@@ -3074,7 +3098,7 @@
 
 - type: entity
   name: pig
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   id: MobPig
   description: Oink.
   components:
@@ -3110,12 +3134,6 @@
     offspring:
     - id: MobPig
   - type: ReproductivePartner
-  - type: InventorySlots
-  - type: Strippable
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:
@@ -3146,7 +3164,7 @@
 
 - type: entity
   name: diona nymph
-  parent: SimpleMobBase
+  parent: [SimpleMobBase, StripableInventoryBase]
   id: MobDionaNymph
   description: It's like a cat, only.... branch-ier.
   components:
@@ -3171,15 +3189,9 @@
   - type: Inventory
     speciesId: cat
     templateId: pet
-  - type: InventorySlots
-  - type: Strippable
   - type: Bloodstream
     bloodReagent: Sap
     bloodMaxVolume: 60
-  - type: UserInterface
-    interfaces:
-    - key: enum.StrippingUiKey.Key
-      type: StrippableBoundUserInterface
   - type: DamageStateVisuals
     states:
       Alive:

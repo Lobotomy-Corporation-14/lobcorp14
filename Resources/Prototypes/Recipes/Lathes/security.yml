@@ -130,81 +130,16 @@
     Steel: 100
 
 - type: latheRecipe
-  id: ShellShotgunBeanbag
-  result: ShellShotgunBeanbag
+  id: BoxShellTranquilizer
+  result: BoxShellTranquilizer
   category: Ammo
-  completetime: 2
+  completetime: 5
   materials:
-    Plastic: 15
-    Steel: 10
-
-- type: latheRecipe
-  id: CartridgeRifle
-  result: CartridgeRifle
-  category: Ammo
-  completetime: 2
-  materials:
-    Steel: 15
-
-- type: latheRecipe
-  id: CartridgePistol
-  result: CartridgePistol
-  category: Ammo
-  completetime: 2
-  materials:
-    Steel: 10
-
-- type: latheRecipe
-  id: ShellShotgun
-  result: ShellShotgun
-  category: Ammo
-  completetime: 2
-  materials:
-    Steel: 20
-
-- type: latheRecipe
-  id: ShellShotgunSlug
-  result: ShellShotgunSlug
-  completetime: 2
-  materials:
-    Steel: 25
-
-- type: latheRecipe
-  id: CartridgeMagnum
-  result: CartridgeMagnum
-  category: Ammo
-  completetime: 2
-  materials:
-    Steel: 20
-
-- type: latheRecipe
-  id: CartridgeLightRifle
-  result: CartridgeLightRifle
-  category: Ammo
-  completetime: 2
-  materials:
-    Steel: 30
-
-- type: latheRecipe
-  id: ShellShotgunFlare
-  result: ShellShotgunFlare
-  category: Ammo
-  completetime: 2
-  materials:
-    Plastic: 20
-    Steel: 5
-
-- type: latheRecipe
-  id: ShellTranquilizer
-  result: ShellTranquilizer
-  category: Ammo
-  completetime: 4
-  materials:
-    Plastic: 15
-    Steel: 10
-    Glass: 5
-    Plasma: 10
-    Silver: 5
+    Plastic: 240
+    Steel: 160
+    Glass: 80
+    Plasma: 160
+    Silver: 80
 
 - type: latheRecipe
   id: TargetHuman
@@ -555,9 +490,9 @@
   result: GrenadeBlast
   completetime: 3
   materials:
-     Steel: 150
-     Plastic: 100
-     Gold: 50
+     Steel: 450
+     Plastic: 300
+     Gold: 150
      
 - type: latheRecipe
   id: GrenadeFlash
@@ -567,4 +502,14 @@
      Steel: 150
      Plastic: 100
      Glass: 20
-     
+
+- type: latheRecipe
+  id: PortableRecharger
+  result: PortableRecharger
+  completetime: 15
+  materials:
+     Steel: 2000
+     Uranium: 2000
+     Plastic: 1000
+     Plasma: 500
+     Glass: 500

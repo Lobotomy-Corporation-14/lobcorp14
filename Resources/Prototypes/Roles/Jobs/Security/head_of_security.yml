@@ -53,6 +53,7 @@
     ears: ClothingHeadsetAltSecurity
     belt: ClothingBeltSecurityFilled
     pocket1: WeaponPistolMk58
-  innerClothingSkirt: ClothingUniformJumpskirtHoS
-  satchel: ClothingBackpackSatchelHOSFilled
-  duffelbag: ClothingBackpackDuffelHOSFilled
+  storage:
+    back:
+    - Flash
+    - MagazinePistol

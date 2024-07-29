@@ -132,6 +132,8 @@
     solution: beaker
   - type: SolutionTransfer
     canChangeTransferAmount: true
+  - type: SolutionItemStatus
+    solution: beaker
   - type: UserInterface
     interfaces:
     - key: enum.TransferAmountUiKey.Key
@@ -222,6 +224,8 @@
     sprite: Objects/Specific/Chemistry/beaker_cryostasis.rsi
     layers:
       - state: beakernoreact
+  - type: SolutionContainerVisuals
+    maxFillLevels: 0
   - type: SolutionContainerManager
     solutions:
       beaker:
@@ -240,6 +244,8 @@
     sprite: Objects/Specific/Chemistry/beaker_bluespace.rsi
     layers:
       - state: beakerbluespace
+  - type: SolutionContainerVisuals
+    maxFillLevels: 0
   - type: SolutionContainerManager
     solutions:
       beaker:
@@ -280,6 +286,7 @@
     solution: injector
   - type: Item
     sprite: Objects/Specific/Chemistry/dropper.rsi
+    size: Tiny
   - type: Appearance
   - type: SolutionContainerVisuals
     maxFillLevels: 1
@@ -288,6 +295,9 @@
     inHandsFillBaseName: -fill-
   - type: StaticPrice
     price: 40
+  - type: Tag
+    tags:
+    - Dropper
 
 - type: entity
   name: borgdropper

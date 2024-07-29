@@ -5,7 +5,6 @@ using Robust.Shared.Audio;
 using Robust.Shared.Containers;
 using Robust.Shared.GameStates;
 using Robust.Shared.Map;
-using Robust.Shared.Player;
 using Robust.Shared.Prototypes;
 using Robust.Shared.Serialization;
 
@@ -109,6 +108,14 @@ namespace Content.Shared.Storage
         /// </summary>
         [DataField, ViewVariables(VVAccess.ReadWrite)]
         public StorageDefaultOrientation? DefaultStorageOrientation;
+
+        /// <summary>
+        /// If true, sets StackVisuals.Hide to true when the container is closed
+        /// Used in cases where there are sprites that are shown when the container is open but not
+        /// when it is closed
+        /// </summary>
+        [DataField]
+        public bool HideStackVisualsWhenClosed = true;
 
         [Serializable, NetSerializable]
         public enum StorageUiKey : byte
@@ -214,14 +221,8 @@ namespace Content.Shared.Storage
         }
     }
 
-    /// <summary>
-    /// An extra BUI message that either opens, closes, or focuses the storage window based on context.
-    /// </summary>
-    [Serializable, NetSerializable]
-    public sealed class StorageModifyWindowMessage : BoundUserInterfaceMessage
-    {
-
-    }
+    [ByRefEvent]
+    public record struct StorageInteractAttemptEvent(bool Silent, bool Cancelled = false);
 
     [NetSerializable]
     [Serializable]

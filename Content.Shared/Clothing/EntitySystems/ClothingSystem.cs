@@ -96,16 +96,34 @@ public abstract class ClothingSystem : EntitySystem
 
         while (enumerator.NextItem(out EntityUid item))
         {
-            if (_tagSystem.HasTag(item, tag))
+            if (!appearanceLayers.Contains(layer))
+                continue;
+
+            InventorySystem.InventorySlotEnumerator enumerator = _invSystem.GetSlotEnumerator(equipee);
+
+            bool shouldLayerShow = true;
+            while (enumerator.NextItem(out EntityUid item, out SlotDefinition? slot))
             {
                 if (tag == NoseTag) //Special check needs to be made for NoseTag, due to masks being toggleable
                 {
                     if (TryComp(item, out MaskComponent? mask) && TryComp(item, out ClothingComponent? clothing))
                     {
-                        if (clothing.EquippedPrefix != mask.EquippedPrefix)
+                        if (TryComp(item, out ClothingComponent? clothing) && clothing.Slots == slot.SlotFlags)
                         {
-                            shouldLayerShow = false;
-                            break;
+                            //Checks for mask toggling. TODO: Make a generic system for this
+                            if (comp.HideOnToggle && TryComp(item, out MaskComponent? mask))
+                            {
+                                if (clothing.EquippedPrefix != mask.EquippedPrefix)
+                                {
+                                    shouldLayerShow = false;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                shouldLayerShow = false;
+                                break;
+                            }
                         }
                     }
                     else
@@ -211,7 +229,6 @@ public abstract class ClothingSystem : EntitySystem
         clothing.ClothingVisuals = otherClothing.ClothingVisuals;
         clothing.EquippedPrefix = otherClothing.EquippedPrefix;
         clothing.RsiPath = otherClothing.RsiPath;
-        clothing.FemaleMask = otherClothing.FemaleMask;
 
         _itemSys.VisualsChanged(uid);
         Dirty(uid, clothing);
@@ -219,9 +236,6 @@ public abstract class ClothingSystem : EntitySystem
 
     public void SetLayerColor(ClothingComponent clothing, string slot, string mapKey, Color? color)
     {
-        if (clothing.ClothingVisuals == null)
-            return;
-
         foreach (var layer in clothing.ClothingVisuals[slot])
         {
             if (layer.MapKeys == null)
@@ -235,9 +249,6 @@ public abstract class ClothingSystem : EntitySystem
     }
     public void SetLayerState(ClothingComponent clothing, string slot, string mapKey, string state)
     {
-        if (clothing.ClothingVisuals == null)
-            return;
-
         foreach (var layer in clothing.ClothingVisuals[slot])
         {
             if (layer.MapKeys == null)

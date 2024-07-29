@@ -13,6 +13,7 @@ public partial class InventorySystem : EntitySystem
     private void InitializeSlots()
     {
         SubscribeLocalEvent<InventoryComponent, ComponentInit>(OnInit);
+        SubscribeAllEvent<OpenSlotStorageNetworkMessage>(OnOpenSlotStorage);
 
         _vvm.GetTypeHandler<InventoryComponent>()
             .AddHandler(HandleViewVariablesSlots, ListViewVariablesSlots);
@@ -37,6 +38,17 @@ public partial class InventorySystem : EntitySystem
             var container = _containerSystem.EnsureContainer<ContainerSlot>(uid, slot.Name);
             container.OccludesLight = false;
             component.Containers[i] = container;
+        }
+    }
+
+    private void OnOpenSlotStorage(OpenSlotStorageNetworkMessage ev, EntitySessionEventArgs args)
+    {
+        if (args.SenderSession.AttachedEntity is not { Valid: true } uid)
+            return;
+
+        if (TryGetSlotEntity(uid, ev.Slot, out var entityUid) && TryComp<StorageComponent>(entityUid, out var storageComponent))
+        {
+            _storageSystem.OpenStorageUI(entityUid.Value, uid, storageComponent, false);
         }
     }
 
@@ -112,7 +124,6 @@ public partial class InventorySystem : EntitySystem
             slotDefinitions = null;
             return false;
         }
-
         slotDefinitions = inv.Slots;
         return true;
     }

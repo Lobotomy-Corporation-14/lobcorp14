@@ -1,6 +1,6 @@
 using Content.Server.Atmos.EntitySystems;
 using Content.Server.Chat.Managers;
-using Content.Server.GameTicking.Rules.Components;
+using Content.Shared.GameTicking.Components;
 using Robust.Server.GameObjects;
 using Robust.Shared.Random;
 using Robust.Shared.Timing;
@@ -25,6 +25,34 @@ public abstract partial class GameRuleSystem<T> : EntitySystem where T : ICompon
         SubscribeLocalEvent<T, GameRuleAddedEvent>(OnGameRuleAdded);
         SubscribeLocalEvent<T, GameRuleStartedEvent>(OnGameRuleStarted);
         SubscribeLocalEvent<T, GameRuleEndedEvent>(OnGameRuleEnded);
+        SubscribeLocalEvent<RoundEndTextAppendEvent>(OnRoundEndTextAppend);
+    }
+
+    private void OnStartAttempt(RoundStartAttemptEvent args)
+    {
+        if (args.Forced || args.Cancelled)
+            return;
+
+        var query = QueryAllRules();
+        while (query.MoveNext(out var uid, out _, out var gameRule))
+        {
+            var minPlayers = gameRule.MinPlayers;
+            if (args.Players.Length >= minPlayers)
+                continue;
+
+            if (gameRule.CancelPresetOnTooFewPlayers)
+            {
+                ChatManager.SendAdminAnnouncement(Loc.GetString("preset-not-enough-ready-players",
+                    ("readyPlayersCount", args.Players.Length),
+                    ("minimumPlayers", minPlayers),
+                    ("presetName", ToPrettyString(uid))));
+                args.Cancel();
+            }
+            else
+            {
+                ForceEndSelf(uid, gameRule);
+            }
+        }
     }
 
     private void OnGameRuleAdded(EntityUid uid, T component, ref GameRuleAddedEvent args)
@@ -48,6 +76,17 @@ public abstract partial class GameRuleSystem<T> : EntitySystem where T : ICompon
         Ended(uid, component, ruleData, args);
     }
 
+    private void OnRoundEndTextAppend(RoundEndTextAppendEvent ev)
+    {
+        var query = AllEntityQuery<T>();
+        while (query.MoveNext(out var uid, out var comp))
+        {
+            if (!TryComp<GameRuleComponent>(uid, out var ruleData))
+                continue;
+
+            AppendRoundEndText(uid, comp, ruleData, ref ev);
+        }
+    }
 
     /// <summary>
     /// Called when the gamerule is added

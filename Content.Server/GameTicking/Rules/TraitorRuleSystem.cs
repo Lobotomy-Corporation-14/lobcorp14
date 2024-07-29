@@ -5,8 +5,7 @@ using Content.Server.Objectives;
 using Content.Server.PDA.Ringer;
 using Content.Server.Roles;
 using Content.Server.Traitor.Uplink;
-using Content.Shared.CCVar;
-using Content.Shared.Dataset;
+using Content.Shared.GameTicking.Components;
 using Content.Shared.Mind;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.NPC.Systems;
@@ -37,11 +36,6 @@ public sealed class TraitorRuleSystem : GameRuleSystem<TraitorRuleComponent>
     [Dependency] private readonly MindSystem _mindSystem = default!;
     [Dependency] private readonly SharedRoleSystem _roleSystem = default!;
     [Dependency] private readonly SharedJobSystem _jobs = default!;
-    [Dependency] private readonly ObjectivesSystem _objectives = default!;
-    [Dependency] private readonly IGameTiming _timing = default!;
-
-    private int PlayersPerTraitor => _cfg.GetCVar(CCVars.TraitorPlayersPerTraitor);
-    private int MaxTraitors => _cfg.GetCVar(CCVars.TraitorMaxTraitors);
 
     public override void Initialize()
     {
@@ -51,7 +45,6 @@ public sealed class TraitorRuleSystem : GameRuleSystem<TraitorRuleComponent>
         SubscribeLocalEvent<RulePlayerJobsAssignedEvent>(OnPlayersSpawned);
         SubscribeLocalEvent<PlayerSpawnCompleteEvent>(HandleLatejoin);
 
-        SubscribeLocalEvent<TraitorRuleComponent, ObjectivesTextGetInfoEvent>(OnObjectivesTextGetInfo);
         SubscribeLocalEvent<TraitorRuleComponent, ObjectivesTextPrependEvent>(OnObjectivesTextPrepend);
     }
 
@@ -103,48 +96,7 @@ public sealed class TraitorRuleSystem : GameRuleSystem<TraitorRuleComponent>
         }
     }
 
-    private void DoTraitorStart(TraitorRuleComponent component)
-    {
-        var eligiblePlayers = _antagSelection.GetEligiblePlayers(_playerManager.Sessions, component.TraitorPrototypeId);
-
-        if (eligiblePlayers.Count == 0)
-            return;
-
-        var traitorsToSelect = _antagSelection.CalculateAntagCount(_playerManager.PlayerCount, PlayersPerTraitor, MaxTraitors);
-
-        var selectedTraitors = _antagSelection.ChooseAntags(traitorsToSelect, eligiblePlayers);
-
-        MakeTraitor(selectedTraitors, component);
-    }
-
-    private void OnPlayersSpawned(RulePlayerJobsAssignedEvent ev)
-    {
-        //Start the timer
-        var query = QueryActiveRules();
-        while (query.MoveNext(out _, out var comp, out var gameRuleComponent))
-        {
-            var delay = TimeSpan.FromSeconds(
-                _cfg.GetCVar(CCVars.TraitorStartDelay) +
-                _random.NextFloat(0f, _cfg.GetCVar(CCVars.TraitorStartDelayVariance)));
-
-            //Set the delay for choosing traitors
-            comp.AnnounceAt = _timing.CurTime + delay;
-
-            comp.SelectionStatus = TraitorRuleComponent.SelectionState.ReadyToStart;
-        }
-    }
-
-    public bool MakeTraitor(List<EntityUid> traitors, TraitorRuleComponent component, bool giveUplink = true, bool giveObjectives = true)
-    {
-        foreach (var traitor in traitors)
-        {
-            MakeTraitor(traitor, component, giveUplink, giveObjectives);
-        }
-
-        return true;
-    }
-
-    public bool MakeTraitor(EntityUid traitor, TraitorRuleComponent component, bool giveUplink = true, bool giveObjectives = true)
+    public bool MakeTraitor(EntityUid traitor, TraitorRuleComponent component, bool giveUplink = true)
     {
         //Grab the mind if it wasnt provided
         if (!_mindSystem.TryGetMind(traitor, out var mindId, out var mind))
@@ -157,6 +109,7 @@ public sealed class TraitorRuleSystem : GameRuleSystem<TraitorRuleComponent>
         }
 
         var briefing = Loc.GetString("traitor-role-codewords-short", ("codewords", string.Join(", ", component.Codewords)));
+        var issuer = _random.Pick(_prototypeManager.Index(component.ObjectiveIssuers).Values);
 
         Note[]? code = null;
         if (giveUplink)
@@ -180,7 +133,7 @@ public sealed class TraitorRuleSystem : GameRuleSystem<TraitorRuleComponent>
                 Loc.GetString("traitor-role-uplink-code-short", ("code", string.Join("-", code).Replace("sharp", "#"))));
         }
 
-        _antagSelection.SendBriefing(traitor, GenerateBriefing(component.Codewords, code), null, component.GreetSoundNotification);
+        _antag.SendBriefing(traitor, GenerateBriefing(component.Codewords, code, issuer), null, component.GreetSoundNotification);
 
         component.TraitorMinds.Add(mindId);
 
@@ -199,109 +152,20 @@ public sealed class TraitorRuleSystem : GameRuleSystem<TraitorRuleComponent>
         _npcFaction.RemoveFaction(traitor, component.NanoTrasenFaction, false);
         _npcFaction.AddFaction(traitor, component.SyndicateFaction);
 
-        // Give traitors their objectives
-        if (giveObjectives)
-        {
-            var maxDifficulty = _cfg.GetCVar(CCVars.TraitorMaxDifficulty);
-            var maxPicks = _cfg.GetCVar(CCVars.TraitorMaxPicks);
-            var difficulty = 0f;
-            Log.Debug($"Attempting {maxPicks} objective picks with {maxDifficulty} difficulty");
-            for (var pick = 0; pick < maxPicks && maxDifficulty > difficulty; pick++)
-            {
-                var objective = _objectives.GetRandomObjective(mindId, mind, component.ObjectiveGroup);
-                if (objective == null)
-                    continue;
-
-                _mindSystem.AddObjective(mindId, mind, objective.Value);
-                var adding = Comp<ObjectiveComponent>(objective.Value).Difficulty;
-                difficulty += adding;
-                Log.Debug($"Added objective {ToPrettyString(objective):objective} with {adding} difficulty");
-            }
-        }
-
         return true;
     }
 
-    private void HandleLatejoin(PlayerSpawnCompleteEvent ev)
-    {
-        var query = QueryActiveRules();
-        while (query.MoveNext(out _, out var comp, out _))
-        {
-            if (comp.TotalTraitors >= MaxTraitors)
-                continue;
-
-            if (!ev.LateJoin)
-                continue;
-
-            if (!_antagSelection.IsPlayerEligible(ev.Player, comp.TraitorPrototypeId))
-                continue;
-
-            //If its before we have selected traitors, continue
-            if (comp.SelectionStatus < TraitorRuleComponent.SelectionState.Started)
-                continue;
-
-            // the nth player we adjust our probabilities around
-            var target = PlayersPerTraitor * comp.TotalTraitors + 1;
-            var chance = 1f / PlayersPerTraitor;
-
-            // If we have too many traitors, divide by how many players below target for next traitor we are.
-            if (ev.JoinOrder < target)
-            {
-                chance /= (target - ev.JoinOrder);
-            }
-            else // Tick up towards 100% chance.
-            {
-                chance *= ((ev.JoinOrder + 1) - target);
-            }
-
-            if (chance > 1)
-                chance = 1;
-
-            // Now that we've calculated our chance, roll and make them a traitor if we roll under.
-            // You get one shot.
-            if (_random.Prob(chance))
-            {
-                MakeTraitor(ev.Mob, comp);
-            }
-        }
-    }
-
-    private void OnObjectivesTextGetInfo(EntityUid uid, TraitorRuleComponent comp, ref ObjectivesTextGetInfoEvent args)
-    {
-        args.Minds = comp.TraitorMinds;
-        args.AgentName = Loc.GetString("traitor-round-end-agent-name");
-    }
-
+    // TODO: AntagCodewordsComponent
     private void OnObjectivesTextPrepend(EntityUid uid, TraitorRuleComponent comp, ref ObjectivesTextPrependEvent args)
     {
         args.Text += "\n" + Loc.GetString("traitor-round-end-codewords", ("codewords", string.Join(", ", comp.Codewords)));
     }
 
-    /// <summary>
-    /// Start this game rule manually
-    /// </summary>
-    public TraitorRuleComponent StartGameRule()
-    {
-        var comp = EntityQuery<TraitorRuleComponent>().FirstOrDefault();
-        if (comp == null)
-        {
-            GameTicker.StartGameRule("Traitor", out var ruleEntity);
-            comp = Comp<TraitorRuleComponent>(ruleEntity);
-        }
-
-        return comp;
-    }
-
-    public void MakeTraitorAdmin(EntityUid entity, bool giveUplink, bool giveObjectives)
-    {
-        var traitorRule = StartGameRule();
-        MakeTraitor(entity, traitorRule, giveUplink, giveObjectives);
-    }
-
-    private string GenerateBriefing(string[] codewords, Note[]? uplinkCode)
+    // TODO: figure out how to handle this? add priority to briefing event?
+    private string GenerateBriefing(string[] codewords, Note[]? uplinkCode, string? objectiveIssuer = null)
     {
         var sb = new StringBuilder();
-        sb.AppendLine(Loc.GetString("traitor-role-greeting"));
+        sb.AppendLine(Loc.GetString("traitor-role-greeting", ("corporation", objectiveIssuer ?? Loc.GetString("objective-issuer-unknown"))));
         sb.AppendLine(Loc.GetString("traitor-role-codewords-short", ("codewords", string.Join(", ", codewords))));
         if (uplinkCode != null)
             sb.AppendLine(Loc.GetString("traitor-role-uplink-code-short", ("code", string.Join("-", uplinkCode).Replace("sharp", "#"))));

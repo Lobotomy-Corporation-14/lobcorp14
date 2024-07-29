@@ -2,11 +2,17 @@
 - '**/*.rsi/*.png'
 
 "Changes: Map":
-- 'Resources/Maps/*.yml'
-- 'Resources/Prototypes/Maps/*.yml'
+- changed-files:
+  - any-glob-to-any-file:
+    - 'Resources/Maps/**/*.yml'
+    - 'Resources/Prototypes/Maps/**/*.yml'
 
 "Changes: UI":
 - '**/*.xaml*'
+
+"Changes: Shaders":
+- changed-files:
+  - any-glob-to-any-file: '**/*.swsl'
 
 "No C#":
 - all: ["!**/*.cs"]

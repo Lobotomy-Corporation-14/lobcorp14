@@ -36,3 +36,5 @@ health-analyzer-window-damage-group-Genetic = Genetic
 health-analyzer-window-damage-type-Cellular = Cellular
 
 health-analyzer-window-malnutrition = Severely malnourished
+
+health-analyzer-popup-scan-target = {CAPITALIZE(THE($user))} is trying to scan you!

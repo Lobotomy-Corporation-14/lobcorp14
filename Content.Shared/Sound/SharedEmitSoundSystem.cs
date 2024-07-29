@@ -5,6 +5,7 @@ using Content.Shared.Maps;
 using Content.Shared.Popups;
 using Content.Shared.Sound.Components;
 using Content.Shared.Throwing;
+using Content.Shared.Whitelist;
 using JetBrains.Annotations;
 using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
@@ -30,6 +31,7 @@ public abstract class SharedEmitSoundSystem : EntitySystem
     [Dependency] protected readonly IRobustRandom Random = default!;
     [Dependency] private readonly SharedAudioSystem _audioSystem = default!;
     [Dependency] protected readonly SharedPopupSystem Popup = default!;
+    [Dependency] private readonly EntityWhitelistSystem _whitelistSystem = default!;
 
     public override void Initialize()
     {
@@ -54,7 +56,7 @@ public abstract class SharedEmitSoundSystem : EntitySystem
     private void OnEmitSoundOnLand(EntityUid uid, BaseEmitSoundComponent component, ref LandEvent args)
     {
         if (!args.PlaySound ||
-            !TryComp<TransformComponent>(uid, out var xform) ||
+            !TryComp(uid, out TransformComponent? xform) ||
             !TryComp<MapGridComponent>(xform.GridUid, out var grid))
         {
             return;
@@ -105,7 +107,7 @@ public abstract class SharedEmitSoundSystem : EntitySystem
 
     private void OnEmitSoundOnInteractUsing(Entity<EmitSoundOnInteractUsingComponent> ent, ref InteractUsingEvent args)
     {
-        if (ent.Comp.Whitelist.IsValid(args.Used, EntityManager))
+        if (_whitelistSystem.IsWhitelistPass(ent.Comp.Whitelist, args.Used))
         {
             TryEmitSound(ent, ent.Comp, args.User);
         }

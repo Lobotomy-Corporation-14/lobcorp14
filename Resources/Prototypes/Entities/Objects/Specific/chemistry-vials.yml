@@ -47,6 +47,8 @@
   - type: SolutionTransfer
     maxTransferAmount: 30
     canChangeTransferAmount: true
+  - type: SolutionItemStatus
+    solution: beaker
   - type: UserInterface
     interfaces:
     - key: enum.TransferAmountUiKey.Key

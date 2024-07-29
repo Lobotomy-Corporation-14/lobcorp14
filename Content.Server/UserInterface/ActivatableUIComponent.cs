@@ -56,7 +56,7 @@ namespace Content.Server.UserInterface
         /// </summary>
         [ViewVariables(VVAccess.ReadWrite)]
         [DataField]
-        public bool AllowSpectator = true;
+        public bool BlockSpectators;
 
         /// <summary>
         ///     Whether the UI should close when the item is deselected due to a hand swap or drop

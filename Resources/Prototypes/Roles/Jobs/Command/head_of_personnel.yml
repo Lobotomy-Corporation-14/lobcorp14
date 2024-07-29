@@ -67,6 +67,6 @@
     gloves: ClothingHandsGlovesHop
     ears: ClothingHeadsetAltCommand
     belt: BoxFolderClipboard
-  innerClothingSkirt: ClothingUniformJumpskirtHoP
-  satchel: ClothingBackpackSatchelHOPFilled
-  duffelbag: ClothingBackpackDuffelHOPFilled
+  storage:
+    back:
+    - Flash

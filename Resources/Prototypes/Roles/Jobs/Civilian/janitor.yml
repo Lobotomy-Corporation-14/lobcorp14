@@ -26,9 +26,9 @@
     gloves: ClothingHandsGlovesJanitor
     ears: ClothingHeadsetService
     belt: ClothingBeltJanitorFilled
-  innerClothingSkirt: ClothingUniformJumpskirtJanitor
-  satchel: ClothingBackpackSatchelFilled
-  duffelbag: ClothingBackpackDuffelFilled
+  #storage:
+    #back:
+    #- Stuff
 
 - type: startingGear
   id: JanitorMaidGear

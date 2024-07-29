@@ -17,12 +17,8 @@ namespace Content.Server.GameTicking.Rules;
 
 public sealed class ThiefRuleSystem : GameRuleSystem<ThiefRuleComponent>
 {
-    [Dependency] private readonly IRobustRandom _random = default!;
-    [Dependency] private readonly AntagSelectionSystem _antagSelection = default!;
     [Dependency] private readonly MindSystem _mindSystem = default!;
-    [Dependency] private readonly SharedRoleSystem _roleSystem = default!;
-    [Dependency] private readonly ObjectivesSystem _objectives = default!;
-    [Dependency] private readonly InventorySystem _inventory = default!;
+    [Dependency] private readonly AntagSelectionSystem _antag = default!;
 
     public override void Initialize()
     {
@@ -31,7 +27,6 @@ public sealed class ThiefRuleSystem : GameRuleSystem<ThiefRuleComponent>
         SubscribeLocalEvent<RulePlayerJobsAssignedEvent>(OnPlayersSpawned);
 
         SubscribeLocalEvent<ThiefRoleComponent, GetBriefingEvent>(OnGetBriefing);
-        SubscribeLocalEvent<ThiefRuleComponent, ObjectivesTextGetInfoEvent>(OnObjectivesTextGetInfo);
     }
 
     private void OnPlayersSpawned(RulePlayerJobsAssignedEvent ev)
@@ -91,61 +86,7 @@ public sealed class ThiefRuleSystem : GameRuleSystem<ThiefRuleComponent>
         }
 
         //Generate objectives
-        GenerateObjectives(mindId, mind, thiefRule);
-
-        //Send briefing here to account for humanoid/animal
-        _antagSelection.SendBriefing(thief, MakeBriefing(thief), null, thiefRule.GreetingSound);
-
-        // Give starting items
-        _inventory.SpawnItemsOnEntity(thief, thiefRule.StarterItems);
-
-        thiefRule.ThievesMinds.Add(mindId);
-    }
-
-    public void AdminMakeThief(EntityUid entity, bool addPacified)
-    {
-        var thiefRule = EntityQuery<ThiefRuleComponent>().FirstOrDefault();
-        if (thiefRule == null)
-        {
-            GameTicker.StartGameRule("Thief", out var ruleEntity);
-            thiefRule = Comp<ThiefRuleComponent>(ruleEntity);
-        }
-
-        if (HasComp<ThiefRoleComponent>(entity))
-            return;
-
-        MakeThief(entity, thiefRule, addPacified);
-    }
-
-    private void GenerateObjectives(EntityUid mindId, MindComponent mind, ThiefRuleComponent thiefRule)
-    {
-        // Give thieves their objectives
-        var difficulty = 0f;
-
-        if (_random.Prob(thiefRule.BigObjectiveChance)) // 70% chance to 1 big objective (structure or animal)
-        {
-            var objective = _objectives.GetRandomObjective(mindId, mind, thiefRule.BigObjectiveGroup);
-            if (objective != null)
-            {
-                _mindSystem.AddObjective(mindId, mind, objective.Value);
-                difficulty += Comp<ObjectiveComponent>(objective.Value).Difficulty;
-            }
-        }
-
-        for (var i = 0; i < thiefRule.MaxStealObjectives && thiefRule.MaxObjectiveDifficulty > difficulty; i++)  // Many small objectives
-        {
-            var objective = _objectives.GetRandomObjective(mindId, mind, thiefRule.SmallObjectiveGroup);
-            if (objective == null)
-                continue;
-
-            _mindSystem.AddObjective(mindId, mind, objective.Value);
-            difficulty += Comp<ObjectiveComponent>(objective.Value).Difficulty;
-        }
-
-        //Escape target
-        var escapeObjective = _objectives.GetRandomObjective(mindId, mind, thiefRule.EscapeObjectiveGroup);
-        if (escapeObjective != null)
-            _mindSystem.AddObjective(mindId, mind, escapeObjective.Value);
+        _antag.SendBriefing(args.EntityUid, MakeBriefing(args.EntityUid), null, null);
     }
 
     //Add mind briefing
@@ -167,11 +108,5 @@ public sealed class ThiefRuleSystem : GameRuleSystem<ThiefRuleComponent>
 
         briefing += "\n \n" + Loc.GetString("thief-role-greeting-equipment") + "\n";
         return briefing;
-    }
-
-    private void OnObjectivesTextGetInfo(Entity<ThiefRuleComponent> thiefs, ref ObjectivesTextGetInfoEvent args)
-    {
-        args.Minds = thiefs.Comp.ThievesMinds;
-        args.AgentName = Loc.GetString("thief-round-end-agent-name");
     }
 }

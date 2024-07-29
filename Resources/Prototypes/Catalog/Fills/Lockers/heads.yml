@@ -7,6 +7,7 @@
     contents:
       - id: BoxFolderQmClipboard
       - id: CargoRequestComputerCircuitboard
+      - id: CargoSaleComputerCircuitboard
       - id: CargoShuttleComputerCircuitboard
       - id: CargoShuttleConsoleCircuitboard
       - id: SalvageShuttleConsoleCircuitboard
@@ -273,6 +274,7 @@
       - id: BoxEncryptionKeySecurity
       - id: HoloprojectorSecurity
       - id: BookSecretDocuments
+      - id: BookSpaceLaw
 
 - type: entity
   id: LockerHeadOfSecurityFilled
@@ -296,6 +298,7 @@
       - id: BoxEncryptionKeySecurity
       - id: HoloprojectorSecurity
       - id: BookSecretDocuments
+      - id: BookSpaceLaw
 
 - type: entity
   id: LockerFreezerVaultFilled

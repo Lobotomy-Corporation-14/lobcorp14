@@ -247,7 +247,7 @@ public sealed class AirAlarmSystem : EntitySystem
 
     private void OnActivate(EntityUid uid, AirAlarmComponent component, ActivateInWorldEvent args)
     {
-        if (!TryComp<ActorComponent>(args.User, out var actor))
+        if (!args.Complex)
             return;
 
         if (TryComp<WiresPanelComponent>(uid, out var panel) && panel.Open)

@@ -31,7 +31,7 @@
 
   As stated above, there are many different layouts one can follow to heat up (or cool down) gases; this part of the guide will cover 2 common methods one will often see for the hot loop when the TEG is setup: The Pipe Burn, and the Burn chamber.
 
-  Side note: Plasma fires burn relatively cool compared to, for example, Tritium fires. It may be viable to extract Tritium from an extraction setup (using a 97/3 ratio of O2/Plasma) and react it with Oxygen to get truly hellish temperatures for power. Although, this is just a recommendation; I'm not ya mum.
+  Side note: Plasma fires burn relatively cool compared to, for example, Tritium fires. It may be viable to extract Tritium from an extraction setup (using a 96/4 ratio of O2/Plasma) and react it with Oxygen to get truly hellish temperatures for power. Although, this is just a recommendation; I'm not ya mum.
 
   ## The Pipe Burn
 
@@ -68,7 +68,37 @@
   Most (if not all) stations have the burn chamber separated from the main atmospherics block by a 1-wide spaced grid, presumably to prevent conduction. The chambers consist of 3(+1) important parts:
   - The Air Injector/Passive Vent
   - The Space Vent
-  - The Radiator Loop
+  - The Scrubber Array
+
+  Here is one layer of an example setup:
+  <Box>
+    <GuideEntityEmbed Entity="WallReinforced" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="WallReinforced" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="BlastDoorOpen" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="WallReinforced" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="WallReinforced" Rotation="0" Caption="" Margin="0"/>
+  </Box>
+  <Box>
+    <GuideEntityEmbed Entity="ReinforcedPlasmaWindow" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="GasVentScrubber" Rotation="90" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="GasPipeTJunction" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="GasVentScrubber" Rotation="-90" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="ReinforcedPlasmaWindow" Rotation="0" Caption="" Margin="0"/>
+  </Box>
+  <Box>
+    <GuideEntityEmbed Entity="ReinforcedPlasmaWindow" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="GasPassiveVent" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="GasPipeTJunction" Rotation="90" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="GasVentScrubber" Rotation="-90" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="ReinforcedPlasmaWindow" Rotation="0" Caption="" Margin="0"/>
+  </Box>
+  <Box>
+    <GuideEntityEmbed Entity="WallReinforced" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="ReinforcedPlasmaWindow" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="ReinforcedPlasmaWindow" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="ReinforcedPlasmaWindow" Rotation="0" Caption="" Margin="0"/>
+    <GuideEntityEmbed Entity="WallReinforced" Rotation="0" Caption="" Margin="0"/>
+  </Box>
 
   Most normal burn chambers don't come with Heat-Exchangers; instead, they have air scrubbers (and optionally, an air alarm) to help filter for Tritium, which is a highly reactive, hot-burning gas that can also be used to heat the TEG efficiently.
   However, this is a slightly more advanced setup than just burning plasma, as it needs 2 burn chambers instead of 1 (one for tritium production, one for burning said tritium), so remove the scrubbers and retrofit the burn chamber with a parallel array of heat-exchangers instead.

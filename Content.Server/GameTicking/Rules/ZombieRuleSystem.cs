@@ -8,7 +8,7 @@ using Content.Server.RoundEnd;
 using Content.Server.Station.Components;
 using Content.Server.Station.Systems;
 using Content.Server.Zombies;
-using Content.Shared.CCVar;
+using Content.Shared.GameTicking.Components;
 using Content.Shared.Humanoid;
 using Content.Shared.Mind;
 using Content.Shared.Mobs;
@@ -46,9 +46,25 @@ public sealed class ZombieRuleSystem : GameRuleSystem<ZombieRuleComponent>
     {
         base.Initialize();
 
-        SubscribeLocalEvent<RoundStartAttemptEvent>(OnStartAttempt);
-        SubscribeLocalEvent<RoundEndTextAppendEvent>(OnRoundEndText);
-        SubscribeLocalEvent<PendingZombieComponent, ZombifySelfActionEvent>(OnZombifySelf);
+        SubscribeLocalEvent<InitialInfectedRoleComponent, GetBriefingEvent>(OnGetBriefing);
+        SubscribeLocalEvent<ZombieRoleComponent, GetBriefingEvent>(OnGetBriefing);
+        SubscribeLocalEvent<IncurableZombieComponent, ZombifySelfActionEvent>(OnZombifySelf);
+    }
+
+    private void OnGetBriefing(EntityUid uid, InitialInfectedRoleComponent component, ref GetBriefingEvent args)
+    {
+        if (!TryComp<MindComponent>(uid, out var mind) || mind.OwnedEntity == null)
+            return;
+        if (HasComp<ZombieRoleComponent>(uid)) // don't show both briefings
+            return;
+        args.Append(Loc.GetString("zombie-patientzero-role-greeting"));
+    }
+
+    private void OnGetBriefing(EntityUid uid, ZombieRoleComponent component, ref GetBriefingEvent args)
+    {
+        if (!TryComp<MindComponent>(uid, out var mind) || mind.OwnedEntity == null)
+            return;
+        args.Append(Loc.GetString("zombie-infection-greeting"));
     }
 
     /// <summary>
@@ -168,7 +184,7 @@ public sealed class ZombieRuleSystem : GameRuleSystem<ZombieRuleComponent>
         }
     }
 
-    private void OnZombifySelf(EntityUid uid, PendingZombieComponent component, ZombifySelfActionEvent args)
+    private void OnZombifySelf(EntityUid uid, IncurableZombieComponent component, ZombifySelfActionEvent args)
     {
         _zombie.ZombifyEntity(uid);
         if (component.Action != null)

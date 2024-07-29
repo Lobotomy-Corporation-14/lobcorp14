@@ -83,11 +83,11 @@ public sealed class TipsSystem : EntitySystem
 
     private void AnnounceRandomTip()
     {
-        if (!_prototype.TryIndex<DatasetPrototype>(_tipsDataset, out var tips))
+        if (!_prototype.TryIndex<LocalizedDatasetPrototype>(_tipsDataset, out var tips))
             return;
 
         var tip = _random.Pick(tips.Values);
-        var msg = Loc.GetString("tips-system-chat-message-wrap", ("tip", tip));
+        var msg = Loc.GetString("tips-system-chat-message-wrap", ("tip", Loc.GetString(tip)));
 
         _chat.ChatMessageToManyFiltered(Filter.Broadcast(), ChatChannel.OOC, tip, msg,
             EntityUid.Invalid, false, false, Color.MediumPurple);

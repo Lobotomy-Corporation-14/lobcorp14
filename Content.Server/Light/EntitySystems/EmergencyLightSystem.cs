@@ -3,11 +3,11 @@ using Content.Server.Audio;
 using Content.Server.Light.Components;
 using Content.Server.Power.Components;
 using Content.Server.Power.EntitySystems;
-using Content.Server.Station.Components;
 using Content.Server.Station.Systems;
 using Content.Shared.Examine;
 using Content.Shared.Light;
 using Content.Shared.Light.Components;
+using Content.Shared.Station.Components;
 using Robust.Server.GameObjects;
 using Color = Robust.Shared.Maths.Color;
 
@@ -70,7 +70,7 @@ public sealed class EmergencyLightSystem : SharedEmergencyLightSystem
             args.PushMarkup(
                 Loc.GetString("emergency-light-component-on-examine-alert",
                     ("color", color.ToHex()),
-                    ("level", name)));
+                    ("level", Loc.GetString($"alert-level-{name.ToString().ToLower()}"))));
         }
     }
 
@@ -194,8 +194,29 @@ public sealed class EmergencyLightSystem : SharedEmergencyLightSystem
 
     private void TurnOn(EntityUid uid, EmergencyLightComponent component)
     {
-        _pointLight.SetEnabled(uid, true);
-        _appearance.SetData(uid, EmergencyLightVisuals.On, true);
-        _ambient.SetAmbience(uid, true);
+        _pointLight.SetEnabled(entity.Owner, false);
+        _pointLight.SetColor(entity.Owner, color);
+        _appearance.SetData(entity.Owner, EmergencyLightVisuals.Color, color);
+        _appearance.SetData(entity.Owner, EmergencyLightVisuals.On, false);
+        _ambient.SetAmbience(entity.Owner, false);
+    }
+
+    private void TurnOn(Entity<EmergencyLightComponent> entity)
+    {
+        _pointLight.SetEnabled(entity.Owner, true);
+        _appearance.SetData(entity.Owner, EmergencyLightVisuals.On, true);
+        _ambient.SetAmbience(entity.Owner, true);
+    }
+
+    /// <summary>
+    ///     Turn on emergency light and set color.
+    /// </summary>
+    private void TurnOn(Entity<EmergencyLightComponent> entity, Color color)
+    {
+        _pointLight.SetEnabled(entity.Owner, true);
+        _pointLight.SetColor(entity.Owner, color);
+        _appearance.SetData(entity.Owner, EmergencyLightVisuals.Color, color);
+        _appearance.SetData(entity.Owner, EmergencyLightVisuals.On, true);
+        _ambient.SetAmbience(entity.Owner, true);
     }
 }

@@ -27,6 +27,15 @@
   - type: Damageable
     damageContainer: Biological
     damageModifierSet: Slime
+  - type: PassiveDamage # Around 8 damage a minute healed
+    allowedStates:
+    - Alive
+    damageCap: 65
+    damage:
+      types:
+        Heat: -0.14
+      groups:
+        Brute: -0.14
   - type: DamageVisuals
     damageOverlayGroups:
       Brute:
@@ -55,7 +64,7 @@
         scaleByQuantity: true
         damage:
           types:
-            Heat: 2
+            Heat: 0.1
       - !type:PopupMessage
         type: Local
         visualType: Large
@@ -74,11 +83,25 @@
       types:
         Asphyxiation: -1.0
     maxSaturation: 15
+  - type: Inventory
+    femaleDisplacements:
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Human/displacement.rsi
+            state: jumpsuit-female
 
 - type: entity
   parent: MobHumanDummy
   id: MobSlimePersonDummy
-  noSpawn: true
+  categories: [ HideSpawnMenu ]
   components:
-    - type: HumanoidAppearance
-      species: SlimePerson
+  - type: HumanoidAppearance
+    species: SlimePerson
+  - type: Inventory
+    femaleDisplacements:
+      jumpsuit:
+        sizeMaps:
+          32:
+            sprite: Mobs/Species/Human/displacement.rsi
+            state: jumpsuit-female

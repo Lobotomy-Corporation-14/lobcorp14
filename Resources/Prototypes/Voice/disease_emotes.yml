@@ -5,6 +5,8 @@
     
 - type: emote
   id: Cough
+  name: chat-emote-name-cough
+  icon: Interface/Emotes/cough.png
   category: Vocal
   chatMessages: [coughs]
   chatTriggers:
@@ -29,10 +31,12 @@
 - type: emote
   id: RobotBeep
   category: Vocal
-  chatMessages: [beeps]
+  chatMessages: ["chat-emote-msg-beep"]
 
 - type: emote
   id: Yawn
+  name: chat-emote-name-yawn
+  icon: Interface/Emotes/yawn.png
   category: Vocal
   chatMessages: [yawns]
   chatTriggers:
