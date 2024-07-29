@@ -88,10 +88,7 @@ namespace Content.Server.Pointing.EntitySystems
                         ? viewerPointedAtMessage
                         : viewerMessage;
 
-                // Someone pointing at YOU is slightly more important
-                var popupType = viewerEntity == pointed ? PopupType.Medium : PopupType.Small;
-
-                RaiseNetworkEvent(new PopupEntityEvent(message, popupType, netSource), viewerEntity);
+                RaiseNetworkEvent(new PopupEntityEvent(message, PopupType.Small, netSource), viewerEntity);
             }
 
             _replay.RecordServerMessage(new PopupEntityEvent(viewerMessage, PopupType.Small, netSource));
@@ -101,7 +98,7 @@ namespace Content.Server.Pointing.EntitySystems
         {
             if (HasComp<GhostComponent>(pointer))
             {
-                return _transform.InRange(Transform(pointer).Coordinates, coordinates, 15);
+                return Transform(pointer).Coordinates.InRange(EntityManager, _transform, coordinates, 15);
             }
             else
             {
@@ -145,7 +142,8 @@ namespace Content.Server.Pointing.EntitySystems
                 _popup.PopupEntity(Loc.GetString("pointing-system-try-point-cannot-reach"), player, player);
                 return false;
             }
-            var mapCoordsPointed = _transform.ToMapCoordinates(coordsPointed);
+
+            var mapCoordsPointed = coordsPointed.ToMap(EntityManager, _transform);
             _rotateToFaceSystem.TryFaceCoordinates(player, mapCoordsPointed.Position);
 
             var arrow = EntityManager.SpawnEntity("PointingArrow", coordsPointed);
@@ -153,7 +151,7 @@ namespace Content.Server.Pointing.EntitySystems
             if (TryComp<PointingArrowComponent>(arrow, out var pointing))
             {
                 if (TryComp(player, out TransformComponent? xformPlayer))
-                    pointing.StartPosition = _transform.ToCoordinates((player, xformPlayer), _transform.ToMapCoordinates(xformPlayer.Coordinates)).Position;
+                    pointing.StartPosition = EntityCoordinates.FromMap(arrow, xformPlayer.Coordinates.ToMap(EntityManager, _transform), _transform).Position;
 
                 pointing.EndTime = _gameTiming.CurTime + PointDuration;
 
@@ -173,7 +171,7 @@ namespace Content.Server.Pointing.EntitySystems
             {
                 var arrowVisibility = EntityManager.EnsureComponent<VisibilityComponent>(arrow);
                 layer = playerVisibility.Layer;
-                _visibilitySystem.SetLayer((arrow, arrowVisibility), (ushort) layer);
+                _visibilitySystem.SetLayer(arrow, arrowVisibility, layer);
             }
 
             // Get players that are in range and whose visibility layer matches the arrow's.
@@ -185,7 +183,7 @@ namespace Content.Server.Pointing.EntitySystems
                     (eyeComp.VisibilityMask & layer) == 0)
                     return false;
 
-                return _transform.GetMapCoordinates(ent).InRange(_transform.GetMapCoordinates(player), PointingRange);
+                return Transform(ent).MapPosition.InRange(Transform(player).MapPosition, PointingRange);
             }
 
             var viewers = Filter.Empty()

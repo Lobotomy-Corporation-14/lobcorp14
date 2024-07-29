@@ -22,8 +22,8 @@ namespace Content.Server.Destructible.Thresholds.Behaviors
         /// <param name="cause"></param>
         public void Execute(EntityUid owner, DestructibleSystem system, EntityUid? cause = null)
         {
-            var solutionContainerSystem = system.EntityManager.System<SolutionContainerSystem>();
-            var spillableSystem = system.EntityManager.System<PuddleSystem>();
+            var solutionContainerSystem = EntitySystem.Get<SolutionContainerSystem>();
+            var spillableSystem = EntitySystem.Get<PuddleSystem>();
 
             var coordinates = system.EntityManager.GetComponent<TransformComponent>(owner).Coordinates;
 

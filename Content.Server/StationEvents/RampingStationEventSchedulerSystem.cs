@@ -4,7 +4,6 @@ using Content.Server.GameTicking.Rules.Components;
 using Content.Server.StationEvents.Components;
 using Content.Server.StationEvents.Events;
 using Content.Shared.CCVar;
-using Content.Shared.GameTicking.Components;
 using Robust.Shared.Configuration;
 using Robust.Shared.Random;
 

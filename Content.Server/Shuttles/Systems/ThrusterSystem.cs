@@ -18,7 +18,6 @@ using Robust.Shared.Physics.Events;
 using Robust.Shared.Physics.Systems;
 using Robust.Shared.Timing;
 using Robust.Shared.Utility;
-using Content.Shared.Localizations;
 
 namespace Content.Server.Shuttles.Systems;
 
@@ -68,9 +67,8 @@ public sealed class ThrusterSystem : EntitySystem
                 EntityManager.TryGetComponent(uid, out TransformComponent? xform) &&
                 xform.Anchored)
             {
-                var nozzleLocalization = ContentLocalizationManager.FormatDirection(xform.LocalRotation.Opposite().ToWorldVec().GetDir()).ToLower();
                 var nozzleDir = Loc.GetString("thruster-comp-nozzle-direction",
-                    ("direction", nozzleLocalization));
+                    ("direction", xform.LocalRotation.Opposite().ToWorldVec().GetDir().ToString().ToLowerInvariant()));
 
                 args.PushMarkup(nozzleDir);
 
@@ -130,20 +128,15 @@ public sealed class ThrusterSystem : EntitySystem
 
     private void OnActivateThruster(EntityUid uid, ThrusterComponent component, ActivateInWorldEvent args)
     {
-        if (args.Handled || !args.Complex)
-            return;
-
         component.Enabled ^= true;
 
         if (!component.Enabled)
         {
             DisableThruster(uid, component);
-            args.Handled = true;
         }
         else if (CanEnable(uid, component))
         {
             EnableThruster(uid, component);
-            args.Handled = true;
         }
     }
 
@@ -271,6 +264,11 @@ public sealed class ThrusterSystem : EntitySystem
             return;
         }
 
+        if (TryComp<ApcPowerReceiverComponent>(uid, out var apcPower))
+        {
+            apcPower.NeedsPower = true;
+        }
+
         component.IsOn = true;
 
         if (!EntityManager.TryGetComponent(xform.GridUid, out ShuttleComponent? shuttleComponent))
@@ -372,6 +370,11 @@ public sealed class ThrusterSystem : EntitySystem
 
         if (!EntityManager.TryGetComponent(gridId, out ShuttleComponent? shuttleComponent))
             return;
+
+        if (TryComp<ApcPowerReceiverComponent>(uid, out var apcPower))
+        {
+            apcPower.NeedsPower = false;
+        }
 
         // Logger.DebugS("thruster", $"Disabled thruster {uid}");
 

@@ -1,8 +1,9 @@
 using Content.Shared.Paper;
+using Robust.Shared.GameStates;
 
 namespace Content.Server.Paper;
 
-[RegisterComponent]
+[NetworkedComponent, RegisterComponent]
 public sealed partial class PaperComponent : SharedPaperComponent
 {
     public PaperAction Mode;
@@ -20,7 +21,4 @@ public sealed partial class PaperComponent : SharedPaperComponent
     /// </summary>
     [DataField("stampState")]
     public string? StampState { get; set; }
-
-    [DataField]
-    public bool EditingDisabled = false;
 }

@@ -13,10 +13,7 @@ using Content.Server.Info;
 using Content.Server.Maps;
 using Content.Server.MoMMI;
 using Content.Server.NodeContainer.NodeGroups;
-using Content.Server.Players;
-using Content.Server.Players.JobWhitelist;
 using Content.Server.Players.PlayTimeTracking;
-using Content.Server.Players.RateLimiting;
 using Content.Server.Preferences.Managers;
 using Content.Server.ServerInfo;
 using Content.Server.ServerUpdates;
@@ -64,8 +61,6 @@ namespace Content.Server.IoC
             IoCManager.Register<ServerDbEntryManager>();
             IoCManager.Register<ISharedPlaytimeManager, PlayTimeTrackingManager>();
             IoCManager.Register<ServerApi>();
-            IoCManager.Register<JobWhitelistManager>();
-            IoCManager.Register<PlayerRateLimitManager>();
         }
     }
 }

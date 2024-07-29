@@ -29,7 +29,7 @@
 - type: entity
   id: BaseBorgArmLeft
   parent: PartSilicon
-  name: cyborg left arm
+  name: left cyborg arm
   abstract: true
   components:
   - type: BodyPart
@@ -43,7 +43,7 @@
 - type: entity
   id: BaseBorgArmRight
   parent: PartSilicon
-  name: cyborg right arm
+  name: right cyborg arm
   abstract: true
   components:
   - type: BodyPart
@@ -57,7 +57,7 @@
 - type: entity
   id: BaseBorgLegLeft
   parent: PartSilicon
-  name: cyborg left leg
+  name: left cyborg leg
   abstract: true
   components:
   - type: BodyPart
@@ -71,7 +71,7 @@
 - type: entity
   id: BaseBorgLegRight
   parent: PartSilicon
-  name: cyborg right leg
+  name: right cyborg leg
   abstract: true
   components:
   - type: BodyPart

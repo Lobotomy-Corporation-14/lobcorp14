@@ -86,13 +86,11 @@ namespace Content.Server.Database
 
             var exempt = await GetBanExemptionCore(db, userId);
 
-            var newPlayer = userId == null || !await PlayerRecordExists(db, userId.Value);
-
             // SQLite can't do the net masking stuff we need to match IP address ranges.
             // So just pull down the whole list into memory.
             var bans = await GetAllBans(db.SqliteDbContext, includeUnbanned: false, exempt);
 
-            return bans.FirstOrDefault(b => BanMatches(b, address, userId, hwId, exempt, newPlayer)) is { } foundBan
+            return bans.FirstOrDefault(b => BanMatches(b, address, userId, hwId, exempt)) is { } foundBan
                 ? ConvertBan(foundBan)
                 : null;
         }
@@ -105,14 +103,12 @@ namespace Content.Server.Database
 
             var exempt = await GetBanExemptionCore(db, userId);
 
-            var newPlayer = !await db.SqliteDbContext.Player.AnyAsync(p => p.UserId == userId);
-
             // SQLite can't do the net masking stuff we need to match IP address ranges.
             // So just pull down the whole list into memory.
             var queryBans = await GetAllBans(db.SqliteDbContext, includeUnbanned, exempt);
 
             return queryBans
-                .Where(b => BanMatches(b, address, userId, hwId, exempt, newPlayer))
+                .Where(b => BanMatches(b, address, userId, hwId, exempt))
                 .Select(ConvertBan)
                 .ToList()!;
         }
@@ -131,10 +127,6 @@ namespace Content.Server.Database
 
             if (exemptFlags is { } exempt)
             {
-                // Any flag to bypass BlacklistedRange bans.
-                if (exempt != ServerBanExemptFlags.None)
-                    exempt |= ServerBanExemptFlags.BlacklistedRange;
-
                 query = query.Where(b => (b.ExemptFlags & exempt) == 0);
             }
 
@@ -145,15 +137,10 @@ namespace Content.Server.Database
             IPAddress? address,
             NetUserId? userId,
             ImmutableArray<byte>? hwId,
-            ServerBanExemptFlags? exemptFlags,
-            bool newPlayer)
+            ServerBanExemptFlags? exemptFlags)
         {
             if (!exemptFlags.GetValueOrDefault(ServerBanExemptFlags.None).HasFlag(ServerBanExemptFlags.IP)
-                && address != null
-                && ban.Address is not null
-                && address.IsInSubnet(ban.Address.ToTuple().Value)
-                && (!ban.ExemptFlags.HasFlag(ServerBanExemptFlags.BlacklistedRange) ||
-                     newPlayer))
+                && address != null && ban.Address is not null && address.IsInSubnet(ban.Address.ToTuple().Value))
             {
                 return true;
             }
@@ -452,7 +439,7 @@ namespace Content.Server.Database
         public override async Task<((Admin, string? lastUserName)[] admins, AdminRank[])> GetAllAdminAndRanksAsync(
             CancellationToken cancel)
         {
-            await using var db = await GetDbImpl(cancel);
+            await using var db = await GetDbImpl();
 
             var admins = await db.SqliteDbContext.Admin
                 .Include(a => a.Flags)
@@ -527,27 +514,23 @@ namespace Content.Server.Database
             return DateTime.SpecifyKind(time, DateTimeKind.Utc);
         }
 
-        private async Task<DbGuardImpl> GetDbImpl(
-            CancellationToken cancel = default,
-            [CallerMemberName] string? name = null)
+        private async Task<DbGuardImpl> GetDbImpl([CallerMemberName] string? name = null)
         {
             LogDbOp(name);
             await _dbReadyTask;
             if (_msDelay > 0)
-                await Task.Delay(_msDelay, cancel);
+                await Task.Delay(_msDelay);
 
-            await _prefsSemaphore.WaitAsync(cancel);
+            await _prefsSemaphore.WaitAsync();
 
             var dbContext = new SqliteServerDbContext(_options());
 
             return new DbGuardImpl(this, dbContext);
         }
 
-        protected override async Task<DbGuard> GetDb(
-            CancellationToken cancel = default,
-            [CallerMemberName] string? name = null)
+        protected override async Task<DbGuard> GetDb([CallerMemberName] string? name = null)
         {
-            return await GetDbImpl(cancel, name).ConfigureAwait(false);
+            return await GetDbImpl(name).ConfigureAwait(false);
         }
 
         private sealed class DbGuardImpl : DbGuard
@@ -586,9 +569,9 @@ namespace Content.Server.Database
                 _semaphore = new SemaphoreSlim(maxCount, maxCount);
             }
 
-            public Task WaitAsync(CancellationToken cancel = default)
+            public Task WaitAsync()
             {
-                var task = _semaphore.WaitAsync(cancel);
+                var task = _semaphore.WaitAsync();
 
                 if (_synchronous)
                 {

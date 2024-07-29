@@ -1,5 +1,4 @@
 using Content.Client.Atmos.Overlays;
-using Content.Shared.Atmos;
 using Content.Shared.Atmos.Components;
 using Content.Shared.Atmos.EntitySystems;
 using JetBrains.Annotations;
@@ -37,38 +36,28 @@ namespace Content.Client.Atmos.EntitySystems
 
         private void OnHandleState(EntityUid gridUid, GasTileOverlayComponent comp, ref ComponentHandleState args)
         {
-            Dictionary<Vector2i, GasOverlayChunk> modifiedChunks;
+            if (args.Current is not GasTileOverlayState state)
+                return;
 
-            switch (args.Current)
+            // is this a delta or full state?
+            if (!state.FullState)
             {
-                // is this a delta or full state?
-                case GasTileOverlayDeltaState delta:
+                foreach (var index in comp.Chunks.Keys)
                 {
-                    modifiedChunks = delta.ModifiedChunks;
-                    foreach (var index in comp.Chunks.Keys)
-                    {
-                        if (!delta.AllChunks.Contains(index))
-                            comp.Chunks.Remove(index);
-                    }
-
-                    break;
+                    if (!state.AllChunks!.Contains(index))
+                        comp.Chunks.Remove(index);
                 }
-                case GasTileOverlayState state:
+            }
+            else
+            {
+                foreach (var index in comp.Chunks.Keys)
                 {
-                    modifiedChunks = state.Chunks;
-                    foreach (var index in comp.Chunks.Keys)
-                    {
-                        if (!state.Chunks.ContainsKey(index))
-                            comp.Chunks.Remove(index);
-                    }
-
-                    break;
+                    if (!state.Chunks.ContainsKey(index))
+                        comp.Chunks.Remove(index);
                 }
-                default:
-                    return;
             }
 
-            foreach (var (index, data) in modifiedChunks)
+            foreach (var (index, data) in state.Chunks)
             {
                 comp.Chunks[index] = data;
             }

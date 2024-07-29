@@ -1,3 +1,4 @@
+
 using Content.Shared.Actions;
 using Content.Shared.Eye.Blinding.Components;
 using Robust.Shared.Audio.Systems;
@@ -123,7 +124,7 @@ public sealed class EyeClosingSystem : EntitySystem
         if (_entityManager.TryGetComponent<EyeClosingComponent>(blindable, out var eyelids) && !eyelids.NaturallyCreated)
             return;
 
-        if (ev.Blur < BlurryVisionComponent.MaxMagnitude || ev.Blur >= blindable.Comp.MaxDamage)
+        if (ev.Blur < BlurryVisionComponent.MaxMagnitude || ev.Blur >= BlindableComponent.MaxDamage)
         {
             RemCompDeferred<EyeClosingComponent>(blindable);
             return;

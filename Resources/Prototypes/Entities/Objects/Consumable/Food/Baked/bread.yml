@@ -34,9 +34,7 @@
     flavors:
       - bread
   - type: Tag
-    tags:
-    - Bread
-    - Slice
+    tags: [] #override bread
   - type: SolutionContainerManager
     solutions:
       food:
@@ -118,8 +116,6 @@
   - type: Tag
     tags:
     - Fruit
-    - Bread
-    - Slice
 
 - type: entity
   name: cornbread
@@ -278,8 +274,6 @@
   - type: Tag
     tags:
     - Meat
-    - Bread
-    - Slice
 
 - type: entity
   name: mimana bread
@@ -424,8 +418,6 @@
   - type: Tag
     tags:
     - Meat
-    - Bread
-    - Slice
 
 - type: entity
   name: spider meat bread
@@ -484,8 +476,6 @@
   - type: Tag
     tags:
     - Meat
-    - Bread
-    - Slice
 
 - type: entity
   name: tofu bread
@@ -595,8 +585,6 @@
   - type: Tag
     tags:
     - Meat
-    - Bread
-    - Slice
 
 # Other than bread/slices
 
@@ -606,6 +594,9 @@
   id: FoodBreadBaguette
   description: Bon appétit!
   components:
+  - type: Tag
+    tags:
+    - Baguette
   - type: Sprite
     state: baguette
   - type: SliceableFood
@@ -751,9 +742,6 @@
   - type: Sprite
     layers:
     - state: moldy-slice
-  - type: Tag
-    tags:
-    - Trash
   - type: SolutionContainerManager
     solutions:
       food:
@@ -821,9 +809,7 @@
     name: ghost-role-information-BreadDog-name
     allowMovement: true
     description: ghost-role-information-BreadDog-description
-    rules: ghost-role-information-nonantagonist-rules
-    raffle:
-      settings: short
+    rules: ghost-role-information-BreadDog-rules
   - type: GhostTakeoverAvailable
   - type: BarkAccent
   - type: Speech
@@ -836,13 +822,11 @@
     tags:
     - VimPilot
     - DoorBumpOpener
-    - Bread
   - type: CanEscapeInventory
     baseResistTime: 2
   - type: Puller
     needsHands: false
   - type: Examiner
-  - type: DoAfter
   - type: CombatMode
   - type: MeleeWeapon
     soundHit:

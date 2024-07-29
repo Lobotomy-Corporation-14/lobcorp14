@@ -17,12 +17,11 @@
     storedRotation: -90
   - type: ActivatableUI
     key: enum.HealthAnalyzerUiKey.Key
+    closeOnHandDeselect: false
   - type: UserInterface
     interfaces:
-      enum.HealthAnalyzerUiKey.Key:
+      - key: enum.HealthAnalyzerUiKey.Key
         type: HealthAnalyzerBoundUserInterface
-  - type: ItemToggle
-    onUse: false
   - type: HealthAnalyzer
     scanningEndSound:
       path: "/Audio/Items/Medical/healthscanner.ogg"

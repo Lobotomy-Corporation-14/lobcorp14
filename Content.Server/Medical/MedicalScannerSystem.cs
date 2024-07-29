@@ -86,7 +86,7 @@ namespace Content.Server.Medical
                 return;
 
             var name = "Unknown";
-            if (TryComp(args.Using.Value, out MetaDataComponent? metadata))
+            if (TryComp<MetaDataComponent>(args.Using.Value, out var metadata))
                 name = metadata.EntityName;
 
             InteractionVerb verb = new()

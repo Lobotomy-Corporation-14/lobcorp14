@@ -56,8 +56,8 @@
   - type: Appearance
   - type: UserInterface
     interfaces:
-      enum.DisposalUnitUiKey.Key:
-        type: DisposalUnitBoundUserInterface
+    - key: enum.DisposalUnitUiKey.Key
+      type: DisposalUnitBoundUserInterface
   - type: ContainerContainer
     containers:
       disposals: !type:Container
@@ -77,14 +77,11 @@
     graph: DisposalMachine
     node: disposal_unit
   - type: DisposalUnit
-  - type: ThrowInsertContainer
-    containerId: disposals
   - type: UserInterface
     interfaces:
-      enum.DisposalUnitUiKey.Key:
-        type: DisposalUnitBoundUserInterface
+    - key: enum.DisposalUnitUiKey.Key
+      type: DisposalUnitBoundUserInterface
   - type: RatKingRummageable
-  - type: RequireProjectileTarget
 
 - type: entity
   id: MailingUnit
@@ -132,7 +129,7 @@
   - type: Appearance
   - type: UserInterface
     interfaces:
-      enum.MailingUnitUiKey.Key:
-        type: DisposalUnitBoundUserInterface
-      enum.ConfigurationUiKey.Key:
-        type: ConfigurationBoundUserInterface
+    - key: enum.MailingUnitUiKey.Key
+      type: DisposalUnitBoundUserInterface
+    - key: enum.ConfigurationUiKey.Key
+      type: ConfigurationBoundUserInterface

@@ -1,18 +1,15 @@
 using Content.Shared.Roles;
 using Robust.Shared.Network;
-using Robust.Shared.Prototypes;
 using Robust.Shared.Replays;
 using Robust.Shared.Serialization;
 using Robust.Shared.Serialization.Markdown.Mapping;
 using Robust.Shared.Serialization.Markdown.Value;
-using Robust.Shared.Timing;
 
 namespace Content.Shared.GameTicking
 {
     public abstract class SharedGameTicker : EntitySystem
     {
         [Dependency] private readonly IReplayRecordingManager _replay = default!;
-        [Dependency] private readonly IGameTiming _gameTiming = default!;
 
         // See ideally these would be pulled from the job definition or something.
         // But this is easier, and at least it isn't hardcoded.
@@ -42,11 +39,6 @@ namespace Content.Shared.GameTicking
         private void OnRecordingStart(MappingDataNode metadata, List<object> events)
         {
             metadata["roundId"] = new ValueDataNode(RoundId.ToString());
-        }
-
-        public TimeSpan RoundDuration()
-        {
-            return _gameTiming.CurTime.Subtract(RoundStartTimeSpan);
         }
     }
 
@@ -136,17 +128,19 @@ namespace Content.Shared.GameTicking
     }
 
     [Serializable, NetSerializable]
-    public sealed class TickerJobsAvailableEvent(
-        Dictionary<NetEntity, string> stationNames,
-        Dictionary<NetEntity, Dictionary<ProtoId<JobPrototype>, int?>> jobsAvailableByStation)
-        : EntityEventArgs
+    public sealed class TickerJobsAvailableEvent : EntityEventArgs
     {
         /// <summary>
         /// The Status of the Player in the lobby (ready, observer, ...)
         /// </summary>
-        public Dictionary<NetEntity, Dictionary<ProtoId<JobPrototype>, int?>> JobsAvailableByStation { get; } = jobsAvailableByStation;
+        public Dictionary<NetEntity, Dictionary<string, uint?>> JobsAvailableByStation { get; }
+        public Dictionary<NetEntity, string> StationNames { get; }
 
-        public Dictionary<NetEntity, string> StationNames { get; } = stationNames;
+        public TickerJobsAvailableEvent(Dictionary<NetEntity, string> stationNames, Dictionary<NetEntity, Dictionary<string, uint?>> jobsAvailableByStation)
+        {
+            StationNames = stationNames;
+            JobsAvailableByStation = jobsAvailableByStation;
+        }
     }
 
     [Serializable, NetSerializable, DataDefinition]

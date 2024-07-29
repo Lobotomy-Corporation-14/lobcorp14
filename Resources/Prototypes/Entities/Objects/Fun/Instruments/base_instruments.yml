@@ -1,4 +1,4 @@
-- type: entity
+﻿- type: entity
   abstract: true
   parent: BaseItem
   id: BaseHandheldInstrument
@@ -13,8 +13,8 @@
     key: enum.InstrumentUiKey.Key
   - type: UserInterface
     interfaces:
-      enum.InstrumentUiKey.Key:
-        type: InstrumentBoundUserInterface
+    - key: enum.InstrumentUiKey.Key
+      type: InstrumentBoundUserInterface
   - type: Item
     size: Normal
   - type: StaticPrice
@@ -29,7 +29,7 @@
   components:
   - type: Instrument
   - type: ActivatableUI
-    blockSpectators: true # otherwise they can play client-side music
+    allowSpectator: false # otherwise they can play client-side music
     inHandsOnly: false
     singleUser: true
     requireHands: true
@@ -51,8 +51,8 @@
         acts: ["Destruction"]
   - type: UserInterface
     interfaces:
-      enum.InstrumentUiKey.Key:
-        type: InstrumentBoundUserInterface
+    - key: enum.InstrumentUiKey.Key
+      type: InstrumentBoundUserInterface
   - type: Fixtures
     fixtures:
       fix1:
@@ -71,7 +71,6 @@
         - BulletImpassable
   - type: StaticPrice
     price: 300
-  - type: RequireProjectileTarget
 
 - type: entity
   parent: BasePlaceableInstrument

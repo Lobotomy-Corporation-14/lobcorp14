@@ -55,6 +55,8 @@ public sealed class ConveyorController : SharedConveyorController
         if (MetaData(uid).EntityLifeStage >= EntityLifeStage.Terminating)
             return;
 
+        RemComp<ActiveConveyorComponent>(uid);
+
         if (!TryComp<PhysicsComponent>(uid, out var physics))
             return;
 

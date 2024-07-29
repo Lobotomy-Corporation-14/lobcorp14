@@ -62,6 +62,9 @@
   - type: Item
     size: Ginormous
   - type: DisarmMalus
+  - type: Tool
+    qualities:
+      - Prying
   - type: Prying
 
 - type: entity

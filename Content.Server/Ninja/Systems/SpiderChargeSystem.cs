@@ -7,7 +7,6 @@ using Content.Server.Roles;
 using Content.Server.Sticky.Events;
 using Content.Shared.Interaction;
 using Content.Shared.Ninja.Components;
-using Content.Shared.Ninja.Systems;
 using Robust.Shared.GameObjects;
 
 namespace Content.Server.Ninja.Systems;
@@ -15,12 +14,11 @@ namespace Content.Server.Ninja.Systems;
 /// <summary>
 /// Prevents planting a spider charge outside of its location and handles greentext.
 /// </summary>
-public sealed class SpiderChargeSystem : SharedSpiderChargeSystem
+public sealed class SpiderChargeSystem : EntitySystem
 {
     [Dependency] private readonly MindSystem _mind = default!;
     [Dependency] private readonly PopupSystem _popup = default!;
     [Dependency] private readonly SharedTransformSystem _transform = default!;
-    [Dependency] private readonly SpaceNinjaSystem _ninja = default!;
 
     public override void Initialize()
     {
@@ -78,10 +76,10 @@ public sealed class SpiderChargeSystem : SharedSpiderChargeSystem
     /// </summary>
     private void OnExplode(EntityUid uid, SpiderChargeComponent comp, TriggerEvent args)
     {
-        if (!TryComp<SpaceNinjaComponent>(comp.Planter, out var ninja))
+        if (comp.Planter == null || !_mind.TryGetObjectiveComp<SpiderChargeConditionComponent>(comp.Planter.Value, out var obj))
             return;
 
         // assumes the target was destroyed, that the charge wasn't moved somehow
-        _ninja.DetonatedSpiderCharge((comp.Planter.Value, ninja));
+        obj.Detonated = true;
     }
 }

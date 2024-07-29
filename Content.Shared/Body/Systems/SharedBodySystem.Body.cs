@@ -322,17 +322,15 @@ public partial class SharedBodySystem
                     launchImpulseVariance:GibletLaunchImpulseVariance, launchCone: splatCone);
             }
         }
-
-        var bodyTransform = Transform(bodyId);
         if (TryComp<InventoryComponent>(bodyId, out var inventory))
         {
             foreach (var item in _inventory.GetHandOrInventoryEntities(bodyId))
             {
-                SharedTransform.DropNextTo(item, (bodyId, bodyTransform));
+                SharedTransform.AttachToGridOrMap(item);
                 gibs.Add(item);
             }
         }
-        _audioSystem.PlayPredicted(gibSoundOverride, bodyTransform.Coordinates, null);
+        _audioSystem.PlayPredicted(gibSoundOverride, Transform(bodyId).Coordinates, null);
         return gibs;
     }
 }

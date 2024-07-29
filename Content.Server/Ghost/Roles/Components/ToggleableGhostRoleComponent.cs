@@ -24,9 +24,6 @@ public sealed partial class ToggleableGhostRoleComponent : Component
     [DataField("roleDescription")]
     public string RoleDescription = string.Empty;
 
-    [DataField("roleRules")]
-    public string RoleRules = string.Empty;
-
     [DataField("wipeVerbText")]
     public string WipeVerbText = string.Empty;
 

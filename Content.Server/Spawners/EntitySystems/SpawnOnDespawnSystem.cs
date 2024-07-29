@@ -14,7 +14,7 @@ public sealed class SpawnOnDespawnSystem : EntitySystem
 
     private void OnDespawn(EntityUid uid, SpawnOnDespawnComponent comp, ref TimedDespawnEvent args)
     {
-        if (!TryComp(uid, out TransformComponent? xform))
+        if (!TryComp<TransformComponent>(uid, out var xform))
             return;
 
         Spawn(comp.Prototype, xform.Coordinates);

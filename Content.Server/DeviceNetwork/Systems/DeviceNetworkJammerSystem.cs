@@ -1,15 +1,12 @@
+using Content.Server.DeviceNetwork.Components;
 using Content.Shared.DeviceNetwork.Components;
-using Content.Shared.DeviceNetwork.Systems;
 using Robust.Server.GameObjects;
 
 namespace Content.Server.DeviceNetwork.Systems;
 
-/// <inheritdoc/>
-public sealed class DeviceNetworkJammerSystem : SharedDeviceNetworkJammerSystem
+public sealed class DeviceNetworkJammerSystem : EntitySystem
 {
-    [Dependency] private readonly TransformSystem _transform = default!;
-    [Dependency] private readonly SharedDeviceNetworkJammerSystem _jammer = default!;
-
+    [Dependency] private TransformSystem _transform = default!;
     public override void Initialize()
     {
         base.Initialize();
@@ -17,20 +14,20 @@ public sealed class DeviceNetworkJammerSystem : SharedDeviceNetworkJammerSystem
         SubscribeLocalEvent<TransformComponent, BeforePacketSentEvent>(BeforePacketSent);
     }
 
-    private void BeforePacketSent(Entity<TransformComponent> xform, ref BeforePacketSentEvent ev)
+    private void BeforePacketSent(EntityUid uid, TransformComponent xform, BeforePacketSentEvent ev)
     {
         if (ev.Cancelled)
             return;
 
         var query = EntityQueryEnumerator<DeviceNetworkJammerComponent, TransformComponent>();
 
-        while (query.MoveNext(out var uid, out var jammerComp, out var jammerXform))
+        while (query.MoveNext(out _, out var jammerComp, out var jammerXform))
         {
-            if (!_jammer.GetJammableNetworks((uid, jammerComp)).Contains(ev.NetworkId))
+            if (!jammerComp.JammableNetworks.Contains(ev.NetworkId))
                 continue;
 
-            if (_transform.InRange(jammerXform.Coordinates, ev.SenderTransform.Coordinates, jammerComp.Range)
-                || _transform.InRange(jammerXform.Coordinates, xform.Comp.Coordinates, jammerComp.Range))
+            if (jammerXform.Coordinates.InRange(EntityManager, _transform, ev.SenderTransform.Coordinates, jammerComp.Range)
+                || jammerXform.Coordinates.InRange(EntityManager, _transform, xform.Coordinates, jammerComp.Range))
             {
                 ev.Cancel();
                 return;

@@ -1,4 +1,3 @@
-using Content.Shared.DeviceNetwork.Systems;
 using Robust.Shared.GameStates;
 
 namespace Content.Shared.DeviceNetwork.Components;
@@ -7,7 +6,6 @@ namespace Content.Shared.DeviceNetwork.Components;
 /// Allow entities to jam DeviceNetwork packets.
 /// </summary>
 [RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
-[Access(typeof(SharedDeviceNetworkJammerSystem))]
 public sealed partial class DeviceNetworkJammerComponent : Component
 {
     /// <summary>

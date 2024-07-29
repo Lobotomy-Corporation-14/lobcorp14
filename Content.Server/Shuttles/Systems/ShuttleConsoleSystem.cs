@@ -136,12 +136,13 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
     /// </summary>
     private void OnConsoleUIClose(EntityUid uid, ShuttleConsoleComponent component, BoundUIClosedEvent args)
     {
-        if ((ShuttleConsoleUiKey) args.UiKey != ShuttleConsoleUiKey.Key)
+        if ((ShuttleConsoleUiKey) args.UiKey != ShuttleConsoleUiKey.Key ||
+            args.Session.AttachedEntity is not { } user)
         {
             return;
         }
 
-        RemovePilot(args.Actor);
+        RemovePilot(user);
     }
 
     private void OnConsoleUIOpenAttempt(EntityUid uid, ShuttleConsoleComponent component,
@@ -242,7 +243,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         RaiseLocalEvent(entity.Value, ref getShuttleEv);
         entity = getShuttleEv.Console;
 
-        TryComp(entity, out TransformComponent? consoleXform);
+        TryComp<TransformComponent>(entity, out var consoleXform);
         var shuttleGridUid = consoleXform?.GridUid;
 
         NavInterfaceState navState;
@@ -264,9 +265,9 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
                 new List<ShuttleExclusionObject>());
         }
 
-        if (_ui.HasUi(consoleUid, ShuttleConsoleUiKey.Key))
+        if (_ui.TryGetUi(consoleUid, ShuttleConsoleUiKey.Key, out var bui))
         {
-            _ui.SetUiState(consoleUid, ShuttleConsoleUiKey.Key, new ShuttleBoundUserInterfaceState(navState, mapState, dockState));
+            _ui.SetUiState(bui, new ShuttleBoundUserInterfaceState(navState, mapState, dockState));
         }
     }
 
@@ -317,7 +318,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
 
         component.SubscribedPilots.Add(entity);
 
-        _alertsSystem.ShowAlert(entity, pilotComponent.PilotingAlert);
+        _alertsSystem.ShowAlert(entity, AlertType.PilotingShuttle);
 
         pilotComponent.Console = uid;
         ActionBlockerSystem.UpdateCanMove(entity);
@@ -339,7 +340,7 @@ public sealed partial class ShuttleConsoleSystem : SharedShuttleConsoleSystem
         if (!helm.SubscribedPilots.Remove(pilotUid))
             return;
 
-        _alertsSystem.ClearAlert(pilotUid, pilotComponent.PilotingAlert);
+        _alertsSystem.ClearAlert(pilotUid, AlertType.PilotingShuttle);
 
         _popup.PopupEntity(Loc.GetString("shuttle-pilot-end"), pilotUid, pilotUid);
 

@@ -4,12 +4,10 @@ using Content.Client.Lobby;
 using Content.Client.RoundEnd;
 using Content.Shared.GameTicking;
 using Content.Shared.GameWindow;
-using Content.Shared.Roles;
 using JetBrains.Annotations;
 using Robust.Client.Graphics;
 using Robust.Client.State;
-using Robust.Client.UserInterface;
-using Robust.Shared.Prototypes;
+using Robust.Shared.Utility;
 
 namespace Content.Client.GameTicking.Managers
 {
@@ -19,10 +17,16 @@ namespace Content.Client.GameTicking.Managers
         [Dependency] private readonly IStateManager _stateManager = default!;
         [Dependency] private readonly IClientAdminManager _admin = default!;
         [Dependency] private readonly IClyde _clyde = default!;
-        [Dependency] private readonly IUserInterfaceManager _userInterfaceManager = default!;
+        [Dependency] private readonly SharedMapSystem _map = default!;
 
-        private Dictionary<NetEntity, Dictionary<ProtoId<JobPrototype>, int?>>  _jobsAvailable = new();
+        [ViewVariables] private bool _initialized;
+        private Dictionary<NetEntity, Dictionary<string, uint?>>  _jobsAvailable = new();
         private Dictionary<NetEntity, string> _stationNames = new();
+
+        /// <summary>
+        /// The current round-end window. Could be used to support re-opening the window after closing it.
+        /// </summary>
+        private RoundEndSummaryWindow? _window;
 
         [ViewVariables] public bool AreWeReady { get; private set; }
         [ViewVariables] public bool IsGameStarted { get; private set; }
@@ -33,13 +37,13 @@ namespace Content.Client.GameTicking.Managers
         [ViewVariables] public TimeSpan StartTime { get; private set; }
         [ViewVariables] public new bool Paused { get; private set; }
 
-        [ViewVariables] public IReadOnlyDictionary<NetEntity, Dictionary<ProtoId<JobPrototype>, int?>> JobsAvailable => _jobsAvailable;
+        [ViewVariables] public IReadOnlyDictionary<NetEntity, Dictionary<string, uint?>> JobsAvailable => _jobsAvailable;
         [ViewVariables] public IReadOnlyDictionary<NetEntity, string> StationNames => _stationNames;
 
         public event Action? InfoBlobUpdated;
         public event Action? LobbyStatusUpdated;
         public event Action? LobbyLateJoinStatusUpdated;
-        public event Action<IReadOnlyDictionary<NetEntity, Dictionary<ProtoId<JobPrototype>, int?>>>? LobbyJobsAvailableUpdated;
+        public event Action<IReadOnlyDictionary<NetEntity, Dictionary<string, uint?>>>? LobbyJobsAvailableUpdated;
 
         public override void Initialize()
         {
@@ -70,7 +74,7 @@ namespace Content.Client.GameTicking.Managers
             // reading the console. E.g., logs like this one could leak the nuke station/grid:
             // > Grid NT-Arrivals 1101 (122/n25896) changed parent. Old parent: map 10 (121/n25895). New parent: FTL (123/n26470)
 #if !DEBUG
-            EntityManager.System<SharedMapSystem>().Log.Level = _admin.IsAdmin() ? LogLevel.Info : LogLevel.Warning;
+            _map.Log.Level = _admin.IsAdmin() ? LogLevel.Info : LogLevel.Warning;
 #endif
         }
 
@@ -148,7 +152,12 @@ namespace Content.Client.GameTicking.Managers
             // Force an update in the event of this song being the same as the last.
             RestartSound = message.RestartSound;
 
-            _userInterfaceManager.GetUIController<RoundEndSummaryUIController>().OpenRoundEndSummaryWindow(message);
+            // Don't open duplicate windows (mainly for replays).
+            if (_window?.RoundId == message.RoundId)
+                return;
+
+            //This is not ideal at all, but I don't see an immediately better fit anywhere else.
+            _window = new RoundEndSummaryWindow(message.GamemodeTitle, message.RoundEndText, message.RoundDuration, message.RoundId, message.AllPlayersEndInfo, EntityManager);
         }
     }
 }

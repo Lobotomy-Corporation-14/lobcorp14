@@ -12,12 +12,9 @@ namespace Content.Server.Chemistry.TileReactions
     [DataDefinition]
     public sealed partial class SpillIfPuddlePresentTileReaction : ITileReaction
     {
-        public FixedPoint2 TileReact(TileRef tile,
-            ReagentPrototype reagent,
-            FixedPoint2 reactVolume,
-            IEntityManager entityManager)
+        public FixedPoint2 TileReact(TileRef tile, ReagentPrototype reagent, FixedPoint2 reactVolume)
         {
-            var spillSystem = entityManager.System<PuddleSystem>();
+            var spillSystem = EntitySystem.Get<PuddleSystem>();
             if (reactVolume < 5 || !spillSystem.TryGetPuddle(tile, out _))
                 return FixedPoint2.Zero;
 

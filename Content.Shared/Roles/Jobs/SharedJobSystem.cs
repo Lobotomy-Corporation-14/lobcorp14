@@ -118,18 +118,6 @@ public abstract class SharedJobSystem : EntitySystem
                _prototypes.TryIndex(comp.Prototype, out prototype);
     }
 
-    public bool MindTryGetJobId([NotNullWhen(true)] EntityUid? mindId, out ProtoId<JobPrototype>? job)
-    {
-        if (!TryComp(mindId, out JobComponent? comp))
-        {
-            job = null;
-            return false;
-        }
-
-        job = comp.Prototype;
-        return true;
-    }
-
     /// <summary>
     ///     Tries to get the job name for this mind.
     ///     Returns unknown if not found.
@@ -158,10 +146,8 @@ public abstract class SharedJobSystem : EntitySystem
 
     public bool CanBeAntag(ICommonSession player)
     {
-        // If the player does not have any mind associated with them (e.g., has not spawned in or is in the lobby), then
-        // they are eligible to be given an antag role/entity.
         if (_playerSystem.ContentData(player) is not { Mind: { } mindId })
-            return true;
+            return false;
 
         if (!MindTryGetJob(mindId, out _, out var prototype))
             return true;

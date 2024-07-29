@@ -3,7 +3,6 @@ using Content.Shared.Stacks;
 using Robust.Shared.GameObjects;
 using Robust.Shared.Map;
 using Robust.Shared.Prototypes;
-using static Robust.UnitTesting.RobustIntegrationTest;
 
 namespace Content.IntegrationTests.Tests.Interaction;
 
@@ -33,7 +32,7 @@ public abstract partial class InteractionTest
         public int Quantity;
 
         /// <summary>
-        /// If true, a check has been performed to see if the prototype is an entity prototype with a stack component,
+        /// If true, a check has been performed to see if the prototype ia an entity prototype with a stack component,
         /// in which case the specifier was converted into a stack-specifier
         /// </summary>
         public bool Converted;
@@ -55,7 +54,7 @@ public abstract partial class InteractionTest
         /// <summary>
         /// Convert applicable entity prototypes into stack prototypes.
         /// </summary>
-        public async Task ConvertToStack(IPrototypeManager protoMan, IComponentFactory factory, ServerIntegrationInstance server)
+        public void ConvertToStack(IPrototypeManager protoMan, IComponentFactory factory)
         {
             if (Converted)
                 return;
@@ -74,14 +73,11 @@ public abstract partial class InteractionTest
                 return;
             }
 
-            StackComponent? stack = null;
-            await server.WaitPost(() =>
+            if (entProto.TryGetComponent<StackComponent>(factory.GetComponentName(typeof(StackComponent)),
+                    out var stackComp))
             {
-                entProto.TryGetComponent(factory.GetComponentName(typeof(StackComponent)), out stack);
-            });
-
-            if (stack != null)
-                Prototype = stack.StackTypeId;
+                Prototype = stackComp.StackTypeId;
+            }
         }
     }
 
@@ -100,27 +96,24 @@ public abstract partial class InteractionTest
 
         if (!ProtoMan.TryIndex<EntityPrototype>(spec.Prototype, out var entProto))
         {
-            Assert.Fail($"Unknown prototype: {spec.Prototype}");
+            Assert.Fail($"Unkown prototype: {spec.Prototype}");
             return default;
         }
 
-        StackComponent? stack = null;
-        await Server.WaitPost(() =>
+        if (entProto.TryGetComponent<StackComponent>(Factory.GetComponentName(typeof(StackComponent)),
+                out var stackComp))
         {
-            entProto.TryGetComponent(Factory.GetComponentName(typeof(StackComponent)), out stack);
-        });
-
-        if (stack != null)
-            return await SpawnEntity((stack.StackTypeId, spec.Quantity), coords);
+            return await SpawnEntity((stackComp.StackTypeId, spec.Quantity), coords);
+        }
 
         Assert.That(spec.Quantity, Is.EqualTo(1), "SpawnEntity only supports returning a singular entity");
-        await Server.WaitPost(() => uid = SEntMan.SpawnAtPosition(spec.Prototype, coords));
+        await Server.WaitPost(() => uid = SEntMan.SpawnEntity(spec.Prototype, coords));
         return uid;
     }
 
     /// <summary>
     /// Convert an entity-uid to a matching entity specifier. Useful when doing entity lookups & checking that the
-    /// right quantity of entities/materials were produced. Returns null if passed an entity with a null prototype.
+    /// right quantity of entities/materials werre produced. Returns null if passed an entity with a null prototype.
     /// </summary>
     protected EntitySpecifier? ToEntitySpecifier(EntityUid uid)
     {

@@ -26,7 +26,7 @@ public class MapLoadBenchmark
     public void Setup()
     {
         ProgramShared.PathOffset = "../../../../";
-        PoolManager.Startup();
+        PoolManager.Startup(null);
 
         _pair = PoolManager.GetServerClient().GetAwaiter().GetResult();
         var server = _pair.Server;

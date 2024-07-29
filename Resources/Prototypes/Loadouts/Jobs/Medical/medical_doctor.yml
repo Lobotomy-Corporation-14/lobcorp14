@@ -18,17 +18,6 @@
       department: Medical
       time: 216000 # 60 hrs
 
-# Other Timers
-
-- type: loadoutEffectGroup
-  id: MedicalHeadMirrorTimer
-  effects:
-  - !type:JobRequirementLoadoutEffect
-    requirement:
-      !type:RoleTimeRequirement
-      role: JobMedicalDoctor
-      time: 108000 #30 hrs
-
 # Head
 
 - type: loadout
@@ -42,18 +31,6 @@
   id: SeniorPhysicianBeret
   equipment:
     head: ClothingHeadHatBeretSeniorPhysician
-
-- type: loadout
-  id: MedicalHeadMirror
-  equipment: MedicalHeadMirror
-  effects:
-  - !type:GroupLoadoutEffect
-    proto: MedicalHeadMirrorTimer
-
-- type: startingGear
-  id: MedicalHeadMirror
-  equipment:
-    head: ClothingHeadMirror
 
 - type: loadout
   id: MedicalBeret
@@ -178,7 +155,7 @@
 - type: startingGear
   id: MedicalDoctorBackpack
   equipment:
-    back: ClothingBackpackMedical
+    back: ClothingBackpackMedicalFilled
 
 - type: loadout
   id: MedicalDoctorSatchel
@@ -187,7 +164,7 @@
 - type: startingGear
   id: MedicalDoctorSatchel
   equipment:
-    back: ClothingBackpackSatchelMedical
+    back: ClothingBackpackSatchelMedicalFilled
 
 - type: loadout
   id: MedicalDoctorDuffel
@@ -196,7 +173,7 @@
 - type: startingGear
   id: MedicalDoctorDuffel
   equipment:
-    back: ClothingBackpackDuffelMedical
+    back: ClothingBackpackDuffelMedicalFilled
 
 # OuterClothing
 - type: loadout

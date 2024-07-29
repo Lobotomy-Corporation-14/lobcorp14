@@ -62,37 +62,46 @@ namespace Content.Shared.Decals
     }
 
     [Serializable, NetSerializable]
-    public sealed class DecalGridState(Dictionary<Vector2i, DecalChunk> chunks) : ComponentState
+    public sealed class DecalGridState : ComponentState, IComponentDeltaState
     {
-        public Dictionary<Vector2i, DecalChunk> Chunks = chunks;
-    }
+        public Dictionary<Vector2i, DecalChunk> Chunks;
+        public bool FullState => AllChunks == null;
 
-    [Serializable, NetSerializable]
-    public sealed class DecalGridDeltaState(Dictionary<Vector2i, DecalChunk> modifiedChunks, HashSet<Vector2i> allChunks)
-        : ComponentState, IComponentDeltaState<DecalGridState>
-    {
-        public Dictionary<Vector2i, DecalChunk> ModifiedChunks = modifiedChunks;
-        public HashSet<Vector2i> AllChunks = allChunks;
+        // required to infer deleted/missing chunks for delta states
+        public HashSet<Vector2i>? AllChunks;
 
-        public void ApplyToFullState(DecalGridState state)
+        public DecalGridState(Dictionary<Vector2i, DecalChunk> chunks)
         {
+            Chunks = chunks;
+        }
+
+        public void ApplyToFullState(IComponentState fullState)
+        {
+            DebugTools.Assert(!FullState);
+            var state = (DecalGridState) fullState;
+            DebugTools.Assert(state.FullState);
+
             foreach (var key in state.Chunks.Keys)
             {
                 if (!AllChunks!.Contains(key))
                     state.Chunks.Remove(key);
             }
 
-            foreach (var (chunk, data) in ModifiedChunks)
+            foreach (var (chunk, data) in Chunks)
             {
                 state.Chunks[chunk] = new(data);
             }
         }
 
-        public DecalGridState CreateNewFullState(DecalGridState state)
+        public IComponentState CreateNewFullState(IComponentState fullState)
         {
+            DebugTools.Assert(!FullState);
+            var state = (DecalGridState) fullState;
+            DebugTools.Assert(state.FullState);
+
             var chunks = new Dictionary<Vector2i, DecalChunk>(state.Chunks.Count);
 
-            foreach (var (chunk, data) in ModifiedChunks)
+            foreach (var (chunk, data) in Chunks)
             {
                 chunks[chunk] = new(data);
             }

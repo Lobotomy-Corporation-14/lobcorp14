@@ -191,7 +191,7 @@
   - type: StorageFill
     contents:
     - id: CigaretteSyndicate
-      amount: 10
+      amount: 5
 
 - type: entity
   id: CigPackMixedMedical

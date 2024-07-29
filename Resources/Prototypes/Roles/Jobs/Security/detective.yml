@@ -28,8 +28,3 @@
     id: DetectivePDA
     ears: ClothingHeadsetSecurity
     belt: ClothingBeltHolsterFilled
-  storage:
-    back:
-    - Flash
-    - ForensicPad
-    - ForensicScanner

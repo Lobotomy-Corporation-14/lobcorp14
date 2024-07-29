@@ -1,16 +1,17 @@
+using System.Linq;
 using Content.Server.Administration;
 using Content.Shared.Administration;
 using Content.Shared.Weather;
 using Robust.Shared.Console;
 using Robust.Shared.GameStates;
 using Robust.Shared.Map;
+using Robust.Shared.Map.Components;
 
 namespace Content.Server.Weather;
 
 public sealed class WeatherSystem : SharedWeatherSystem
 {
     [Dependency] private readonly IConsoleHost _console = default!;
-    [Dependency] private readonly SharedMapSystem _mapSystem = default!;
 
     public override void Initialize()
     {
@@ -29,7 +30,7 @@ public sealed class WeatherSystem : SharedWeatherSystem
     }
 
     [AdminCommand(AdminFlags.Fun)]
-    private void WeatherTwo(IConsoleShell shell, string argStr, string[] args)
+    private void WeatherTwo(IConsoleShell shell, string argstr, string[] args)
     {
         if (args.Length < 2)
         {
@@ -59,8 +60,7 @@ public sealed class WeatherSystem : SharedWeatherSystem
                 var maxTime = TimeSpan.MaxValue;
 
                 // If it's already running then just fade out with how much time we're into the weather.
-                if (_mapSystem.TryGetMap(mapId, out var mapUid) &&
-                    TryComp<WeatherComponent>(mapUid, out var weatherComp) &&
+                if (TryComp<WeatherComponent>(MapManager.GetMapEntityId(mapId), out var weatherComp) &&
                     weatherComp.Weather.TryGetValue(args[1], out var existing))
                 {
                     maxTime = curTime - existing.StartTime;

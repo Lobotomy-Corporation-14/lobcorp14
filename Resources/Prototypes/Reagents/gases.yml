@@ -4,7 +4,7 @@
   desc: reagent-desc-oxygen
   physicalDesc: reagent-physical-desc-gaseous
   flavor: bitter
-  color: "#c4f5ff"
+  color: "#808080"
   boilingPoint: -183.0
   meltingPoint: -218.4
   metabolisms:
@@ -35,25 +35,6 @@
         ratios:
           CarbonDioxide: 1.0
           Oxygen: -1.0
-      - !type:HealthChange
-        conditions:
-        - !type:OrganType
-          type: Vox
-        scaleByQuantity: true
-        ignoreResistances: true
-        damage:
-          types:
-            Poison:
-              7
-      - !type:AdjustAlert
-        alertType: Toxins
-        conditions:
-          - !type:ReagentThreshold
-            min: 0.5
-          - !type:OrganType
-            type: Vox
-        clear: true
-        time: 5
 
 - type: reagent
   id: Plasma
@@ -161,9 +142,6 @@
         - !type:OrganType
           type: Plant
           shouldHave: false
-        - !type:OrganType
-          type: Vox
-          shouldHave: false
         # Don't want people to get toxin damage from the gas they just
         # exhaled, right?
         - !type:ReagentThreshold
@@ -190,7 +168,7 @@
   desc: reagent-desc-nitrogen
   physicalDesc: reagent-physical-desc-gaseous
   flavor: bitter
-  color: "#a1e1ff"
+  color: "#808080"
   boilingPoint: -195.8
   meltingPoint: -210.0
   metabolisms:
@@ -216,7 +194,7 @@
         - !type:OrganType
           type: Vox
         ratios:
-          Ammonia: 1.0
+          CarbonDioxide: 1.0
           Nitrogen: -1.0
       - !type:ModifyLungGas
         conditions:
@@ -232,7 +210,7 @@
   desc: reagent-desc-nitrous-oxide
   physicalDesc: reagent-physical-desc-gaseous
   flavor: bitter
-  color: "#5d88c9"
+  color: "#808080"
   boilingPoint: -88
   meltingPoint: -90
   metabolisms:

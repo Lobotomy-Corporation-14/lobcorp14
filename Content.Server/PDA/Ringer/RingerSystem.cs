@@ -6,7 +6,6 @@ using Content.Shared.PDA;
 using Content.Shared.PDA.Ringer;
 using Content.Shared.Popups;
 using Content.Shared.Store;
-using Content.Shared.Store.Components;
 using Robust.Server.GameObjects;
 using Robust.Shared.Audio;
 using Robust.Shared.Network;
@@ -26,7 +25,6 @@ namespace Content.Server.PDA.Ringer
         [Dependency] private readonly UserInterfaceSystem _ui = default!;
         [Dependency] private readonly AudioSystem _audio = default!;
         [Dependency] private readonly SharedPopupSystem _popupSystem = default!;
-        [Dependency] private readonly TransformSystem _transform = default!;
 
         private readonly Dictionary<NetUserId, TimeSpan> _lastSetRingtoneAt = new();
 
@@ -43,19 +41,13 @@ namespace Content.Server.PDA.Ringer
             SubscribeLocalEvent<RingerComponent, RingerPlayRingtoneMessage>(RingerPlayRingtone);
             SubscribeLocalEvent<RingerComponent, RingerRequestUpdateInterfaceMessage>(UpdateRingerUserInterfaceDriver);
 
-            SubscribeLocalEvent<RingerComponent, CurrencyInsertAttemptEvent>(OnCurrencyInsert);
+            SubscribeLocalEvent<RingerUplinkComponent, CurrencyInsertAttemptEvent>(OnCurrencyInsert);
         }
 
         //Event Functions
 
-        private void OnCurrencyInsert(EntityUid uid, RingerComponent ringer, CurrencyInsertAttemptEvent args)
+        private void OnCurrencyInsert(EntityUid uid, RingerUplinkComponent uplink, CurrencyInsertAttemptEvent args)
         {
-            if (!TryComp<RingerUplinkComponent>(uid, out var uplink))
-            {
-                args.Cancel();
-                return;
-            }
-
             // if the store can be locked, it must be unlocked first before inserting currency. Stops traitor checking.
             if (!uplink.Unlocked)
                 args.Cancel();
@@ -89,10 +81,7 @@ namespace Content.Server.PDA.Ringer
 
         private void OnSetRingtone(EntityUid uid, RingerComponent ringer, RingerSetRingtoneMessage args)
         {
-            if (!TryComp(args.Actor, out ActorComponent? actorComp))
-                return;
-
-            ref var lastSetAt = ref CollectionsMarshal.GetValueRefOrAddDefault(_lastSetRingtoneAt, actorComp.PlayerSession.UserId, out var exists);
+            ref var lastSetAt = ref CollectionsMarshal.GetValueRefOrAddDefault(_lastSetRingtoneAt, args.Session.UserId, out var exists);
 
             // Delay on the client is 0.333, 0.25 is still enough and gives some leeway in case of small time differences
             if (exists && lastSetAt > _gameTiming.CurTime - TimeSpan.FromMilliseconds(250))
@@ -122,7 +111,7 @@ namespace Content.Server.PDA.Ringer
 
                 // can't keep store open after locking it
                 if (!uplink.Unlocked)
-                    _ui.CloseUi(uid, StoreUiKey.Key);
+                    _ui.TryCloseAll(uid, StoreUiKey.Key);
 
                 // no saving the code to prevent meta click set on sus guys pda -> wewlad
                 args.Handled = true;
@@ -141,7 +130,7 @@ namespace Content.Server.PDA.Ringer
                 return;
 
             uplink.Unlocked = false;
-            _ui.CloseUi(uid, StoreUiKey.Key);
+            _ui.TryCloseAll(uid, StoreUiKey.Key);
         }
 
         public void RandomizeRingtone(EntityUid uid, RingerComponent ringer, MapInitEvent args)
@@ -192,12 +181,14 @@ namespace Content.Server.PDA.Ringer
 
         private void UpdateRingerUserInterface(EntityUid uid, RingerComponent ringer, bool isPlaying)
         {
-            _ui.SetUiState(uid, RingerUiKey.Key, new RingerUpdateState(isPlaying, ringer.Ringtone));
+            if (_ui.TryGetUi(uid, RingerUiKey.Key, out var bui))
+                _ui.SetUiState(bui, new RingerUpdateState(isPlaying, ringer.Ringtone));
         }
 
-        public bool ToggleRingerUI(EntityUid uid, EntityUid actor)
+        public bool ToggleRingerUI(EntityUid uid, ICommonSession session)
         {
-            _ui.TryToggleUi(uid, RingerUiKey.Key, actor);
+            if (_ui.TryGetUi(uid, RingerUiKey.Key, out var bui))
+                _ui.ToggleUi(bui, session);
             return true;
         }
 
@@ -218,7 +209,7 @@ namespace Content.Server.PDA.Ringer
 
                 _audio.PlayEntity(
                     GetSound(ringer.Ringtone[ringer.NoteCount]),
-                    Filter.Empty().AddInRange(_transform.GetMapCoordinates(uid, ringerXform), ringer.Range),
+                    Filter.Empty().AddInRange(ringerXform.MapPosition, ringer.Range),
                     uid,
                     true,
                     AudioParams.Default.WithMaxDistance(ringer.Range).WithVolume(ringer.Volume)

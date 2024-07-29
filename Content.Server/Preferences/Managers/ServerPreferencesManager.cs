@@ -3,13 +3,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Content.Server.Database;
+using Content.Server.Humanoid;
 using Content.Shared.CCVar;
+using Content.Shared.Humanoid.Prototypes;
 using Content.Shared.Preferences;
+using Content.Shared.Roles;
 using Robust.Server.Player;
 using Robust.Shared.Configuration;
 using Robust.Shared.Network;
 using Robust.Shared.Player;
-using Robust.Shared.Utility;
+using Robust.Shared.Prototypes;
+
 
 namespace Content.Server.Preferences.Managers
 {
@@ -17,21 +21,17 @@ namespace Content.Server.Preferences.Managers
     /// Sends <see cref="MsgPreferencesAndSettings"/> before the client joins the lobby.
     /// Receives <see cref="MsgSelectCharacter"/> and <see cref="MsgUpdateCharacter"/> at any time.
     /// </summary>
-    public sealed class ServerPreferencesManager : IServerPreferencesManager, IPostInjectInit
+    public sealed class ServerPreferencesManager : IServerPreferencesManager
     {
         [Dependency] private readonly IServerNetManager _netManager = default!;
         [Dependency] private readonly IConfigurationManager _cfg = default!;
         [Dependency] private readonly IServerDbManager _db = default!;
         [Dependency] private readonly IPlayerManager _playerManager = default!;
-        [Dependency] private readonly IDependencyCollection _dependencies = default!;
-        [Dependency] private readonly ILogManager _log = default!;
-        [Dependency] private readonly UserDbDataManager _userDb = default!;
+        [Dependency] private readonly IPrototypeManager _protos = default!;
 
         // Cache player prefs on the server so we don't need as much async hell related to them.
         private readonly Dictionary<NetUserId, PlayerPrefData> _cachedPlayerPrefs =
             new();
-
-        private ISawmill _sawmill = default!;
 
         private int MaxCharacterSlots => _cfg.GetCVar(CCVars.GameMaxCharacterSlots);
 
@@ -41,7 +41,6 @@ namespace Content.Server.Preferences.Managers
             _netManager.RegisterNetMessage<MsgSelectCharacter>(HandleSelectCharacterMessage);
             _netManager.RegisterNetMessage<MsgUpdateCharacter>(HandleUpdateCharacterMessage);
             _netManager.RegisterNetMessage<MsgDeleteCharacter>(HandleDeleteCharacterMessage);
-            _sawmill = _log.GetSawmill("prefs");
         }
 
         private async void HandleSelectCharacterMessage(MsgSelectCharacter message)
@@ -78,30 +77,33 @@ namespace Content.Server.Preferences.Managers
 
         private async void HandleUpdateCharacterMessage(MsgUpdateCharacter message)
         {
+            var slot = message.Slot;
+            var profile = message.Profile;
             var userId = message.MsgChannel.UserId;
 
-            // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
-            if (message.Profile == null)
-                _sawmill.Error($"User {userId} sent a {nameof(MsgUpdateCharacter)} with a null profile in slot {message.Slot}.");
-            else
-                await SetProfile(userId, message.Slot, message.Profile);
-        }
+            if (profile == null)
+            {
+                Logger.WarningS("prefs",
+                    $"User {userId} sent a {nameof(MsgUpdateCharacter)} with a null profile in slot {slot}.");
+                return;
+            }
 
-        public async Task SetProfile(NetUserId userId, int slot, ICharacterProfile profile)
-        {
             if (!_cachedPlayerPrefs.TryGetValue(userId, out var prefsData) || !prefsData.PrefsLoaded)
             {
-                _sawmill.Error($"Tried to modify user {userId} preferences before they loaded.");
+                Logger.WarningS("prefs", $"User {userId} tried to modify preferences before they loaded.");
                 return;
             }
 
             if (slot < 0 || slot >= MaxCharacterSlots)
+            {
                 return;
+            }
 
             var curPrefs = prefsData.Prefs!;
             var session = _playerManager.GetSessionById(userId);
+            var collection = IoCManager.Instance!;
 
-            profile.EnsureValid(session, _dependencies);
+            profile.EnsureValid(session, collection);
 
             var profiles = new Dictionary<int, ICharacterProfile>(curPrefs.Characters)
             {
@@ -110,8 +112,10 @@ namespace Content.Server.Preferences.Managers
 
             prefsData.Prefs = new PlayerPreferences(profiles, slot, curPrefs.AdminOOCColor);
 
-            if (ShouldStorePrefs(session.Channel.AuthType))
-                await _db.SaveCharacterSlotAsync(userId, profile, slot);
+            if (ShouldStorePrefs(message.MsgChannel.AuthType))
+            {
+                await _db.SaveCharacterSlotAsync(message.MsgChannel.UserId, message.Profile, message.Slot);
+            }
         }
 
         private async void HandleDeleteCharacterMessage(MsgDeleteCharacter message)
@@ -192,30 +196,19 @@ namespace Content.Server.Preferences.Managers
 
                 async Task LoadPrefs()
                 {
-                    var prefs = await GetOrCreatePreferencesAsync(session.UserId, cancel);
+                    var prefs = await GetOrCreatePreferencesAsync(session.UserId);
                     prefsData.Prefs = prefs;
+                    prefsData.PrefsLoaded = true;
+
+                    var msg = new MsgPreferencesAndSettings();
+                    msg.Preferences = prefs;
+                    msg.Settings = new GameSettings
+                    {
+                        MaxCharacterSlots = MaxCharacterSlots
+                    };
+                    _netManager.ServerSendMessage(msg, session.Channel);
                 }
             }
-        }
-
-        public void FinishLoad(ICommonSession session)
-        {
-            // This is a separate step from the actual database load.
-            // Sanitizing preferences requires play time info due to loadouts.
-            // And play time info is loaded concurrently from the DB with preferences.
-            var prefsData = _cachedPlayerPrefs[session.UserId];
-            DebugTools.Assert(prefsData.Prefs != null);
-            prefsData.Prefs = SanitizePreferences(session, prefsData.Prefs, _dependencies);
-
-            prefsData.PrefsLoaded = true;
-
-            var msg = new MsgPreferencesAndSettings();
-            msg.Preferences = prefsData.Prefs;
-            msg.Settings = new GameSettings
-            {
-                MaxCharacterSlots = MaxCharacterSlots
-            };
-            _netManager.ServerSendMessage(msg, session.Channel);
         }
 
         public void OnClientDisconnected(ICommonSession session)
@@ -263,29 +256,18 @@ namespace Content.Server.Preferences.Managers
             return prefs;
         }
 
-        /// <summary>
-        /// Retrieves preferences for the given username from storage or returns null.
-        /// Creates and saves default preferences if they are not found, then returns them.
-        /// </summary>
-        public PlayerPreferences? GetPreferencesOrNull(NetUserId? userId)
+        private async Task<PlayerPreferences> GetOrCreatePreferencesAsync(NetUserId userId)
         {
-            if (userId == null)
-                return null;
-
-            if (_cachedPlayerPrefs.TryGetValue(userId.Value, out var pref))
-                return pref.Prefs;
-            return null;
-        }
-
-        private async Task<PlayerPreferences> GetOrCreatePreferencesAsync(NetUserId userId, CancellationToken cancel)
-        {
-            var prefs = await _db.GetPlayerPreferencesAsync(userId, cancel);
+            var prefs = await _db.GetPlayerPreferencesAsync(userId);
             if (prefs is null)
             {
-                return await _db.InitPrefsAsync(userId, HumanoidCharacterProfile.Random(), cancel);
+                return await _db.InitPrefsAsync(userId, HumanoidCharacterProfile.Random());
             }
 
-            return prefs;
+            var session = _playerManager.GetSessionById(userId);
+            var collection = IoCManager.Instance!;
+
+            return SanitizePreferences(session, prefs, collection);
         }
 
         private PlayerPreferences SanitizePreferences(ICommonSession session, PlayerPreferences prefs, IDependencyCollection collection)
@@ -305,7 +287,11 @@ namespace Content.Server.Preferences.Managers
             return usernames
                 .Select(p => (_cachedPlayerPrefs[p].Prefs, p))
                 .Where(p => p.Prefs != null)
-                .Select(p => new KeyValuePair<NetUserId, ICharacterProfile>(p.p, p.Prefs!.SelectedCharacter));
+                .Select(p =>
+                {
+                    var idx = p.Prefs!.SelectedCharacterIndex;
+                    return new KeyValuePair<NetUserId, ICharacterProfile>(p.p, p.Prefs!.GetProfile(idx));
+                });
         }
 
         internal static bool ShouldStorePrefs(LoginType loginType)
@@ -317,13 +303,6 @@ namespace Content.Server.Preferences.Managers
         {
             public bool PrefsLoaded;
             public PlayerPreferences? Prefs;
-        }
-
-        void IPostInjectInit.PostInject()
-        {
-            _userDb.AddOnLoadPlayer(LoadData);
-            _userDb.AddOnFinishLoad(FinishLoad);
-            _userDb.AddOnPlayerDisconnect(OnClientDisconnected);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Content.Shared.Actions;
 using Robust.Shared.Prototypes;
+using Robust.Shared.Serialization.TypeSerializers.Implementations.Custom.Prototype;
 
 namespace Content.Shared.Magic.Events;
 
@@ -8,18 +9,17 @@ public sealed partial class InstantSpawnSpellEvent : InstantActionEvent, ISpeakS
     /// <summary>
     /// What entity should be spawned.
     /// </summary>
-    [DataField(required: true)]
-    public EntProtoId Prototype;
+    [DataField("prototype", required: true, customTypeSerializer: typeof(PrototypeIdSerializer<EntityPrototype>))]
+    public string Prototype = default!;
 
-    [DataField]
+    [DataField("preventCollide")]
     public bool PreventCollideWithCaster = true;
 
-    [DataField]
+    [DataField("speech")]
     public string? Speech { get; private set; }
 
     /// <summary>
     /// Gets the targeted spawn positons; may lead to multiple entities being spawned.
     /// </summary>
-    [DataField]
-    public MagicInstantSpawnData PosData = new TargetCasterPos();
+    [DataField("posData")] public MagicSpawnData Pos = new TargetCasterPos();
 }

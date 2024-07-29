@@ -7,10 +7,6 @@
   components:
   - type: HumanoidAppearance
     species: Reptilian
-    hideLayersOnEquip:
-    - Snout
-    - HeadTop
-    - HeadSide
   - type: Hunger
   - type: Puller
     needsHands: false
@@ -36,9 +32,9 @@
     proto: lizard
   - type: Vocal
     sounds:
-      Male: MaleReptilian
-      Female: FemaleReptilian
-      Unsexed: MaleReptilian
+      Male: UnisexReptilian
+      Female: UnisexReptilian
+      Unsexed: UnisexReptilian
   - type: Damageable
     damageContainer: Biological
     damageModifierSet: Scale

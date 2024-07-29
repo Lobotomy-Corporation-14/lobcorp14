@@ -39,7 +39,6 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
     [Dependency] private readonly IConsoleHost _console = default!;
     [Dependency] private readonly IMapManager _mapManager = default!;
     [Dependency] private readonly IParallelManager _parallel = default!;
-    [Dependency] private readonly IPrototypeManager _proto = default!;
     [Dependency] private readonly IPlayerManager _playerManager = default!;
     [Dependency] private readonly IRobustRandom _random = default!;
     [Dependency] private readonly AtmosphereSystem _atmos = default!;
@@ -120,24 +119,23 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
             SetSeed(uid, component, _random.Next());
         }
 
-        if (_proto.TryIndex(component.Template, out var biome))
-            SetTemplate(uid, component, biome);
-
         var xform = Transform(uid);
         var mapId = xform.MapID;
 
-        if (mapId != MapId.Nullspace && HasComp<MapGridComponent>(uid))
+        if (mapId != MapId.Nullspace && TryComp(uid, out MapGridComponent? mapGrid))
         {
             var setTiles = new List<(Vector2i Index, Tile tile)>();
 
-            foreach (var grid in _mapManager.GetAllGrids(mapId))
+            foreach (var grid in _mapManager.GetAllMapGrids(mapId))
             {
-                if (!_fixturesQuery.TryGetComponent(grid.Owner, out var fixtures))
+                var gridUid = grid.Owner;
+
+                if (!_fixturesQuery.TryGetComponent(gridUid, out var fixtures))
                     continue;
 
                 // Don't want shuttles flying around now do we.
-                _shuttles.Disable(grid.Owner);
-                var pTransform = _physics.GetPhysicsTransform(grid.Owner);
+                _shuttles.Disable(gridUid);
+                var pTransform = _physics.GetPhysicsTransform(gridUid);
 
                 foreach (var fixture in fixtures.Fixtures.Values)
                 {
@@ -151,15 +149,6 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
                 }
             }
         }
-    }
-
-    public void SetEnabled(Entity<BiomeComponent?> ent, bool enabled = true)
-    {
-        if (!Resolve(ent, ref ent.Comp) || ent.Comp.Enabled == enabled)
-            return;
-
-        ent.Comp.Enabled = enabled;
-        Dirty(ent, ent.Comp);
     }
 
     public void SetSeed(EntityUid uid, BiomeComponent component, int seed, bool dirty = true)
@@ -808,7 +797,7 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
                 // At least for now unless we do lookups or smth, only work with anchoring.
                 if (_xformQuery.TryGetComponent(ent, out var xform) && !xform.Anchored)
                 {
-                    _transform.AnchorEntity((ent, xform), (gridUid, grid), indices);
+                    _transform.AnchorEntity(ent, xform, gridUid, grid, indices);
                 }
 
                 loadedEntities.Add(ent, indices);
@@ -984,7 +973,7 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
     /// <summary>
     /// Creates a simple planet setup for a map.
     /// </summary>
-    public void EnsurePlanet(EntityUid mapUid, BiomeTemplatePrototype biomeTemplate, int? seed = null, MetaDataComponent? metadata = null, Color? mapLight = null)
+    public void EnsurePlanet(EntityUid mapUid, BiomeTemplatePrototype biomeTemplate, int? seed = null, MetaDataComponent? metadata = null)
     {
         if (!Resolve(mapUid, ref metadata))
             return;
@@ -1009,7 +998,7 @@ public sealed partial class BiomeSystem : SharedBiomeSystem
         // Lava: #A34931
 
         var light = EnsureComp<MapLightComponent>(mapUid);
-        light.AmbientLightColor = mapLight ?? Color.FromHex("#D8B059");
+        light.AmbientLightColor = Color.FromHex("#D8B059");
         Dirty(mapUid, light, metadata);
 
         var moles = new float[Atmospherics.AdjustedNumberOfGases];

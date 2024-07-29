@@ -1,4 +1,3 @@
-using System.Numerics;
 using Content.Shared.Shuttles.Events;
 using Content.Shared.Shuttles.Systems;
 using Robust.Client.Graphics;
@@ -38,8 +37,9 @@ public sealed partial class ShuttleSystem : SharedShuttleSystem
     private bool _enableShuttlePosition;
     private EmergencyShuttleOverlay? _overlay;
 
-    private void InitializeEmergency()
+    public override void Initialize()
     {
+        base.Initialize();
         SubscribeNetworkEvent<EmergencyShuttlePositionMessage>(OnShuttlePosMessage);
     }
 
@@ -75,6 +75,6 @@ public sealed class EmergencyShuttleOverlay : Overlay
 
         args.WorldHandle.SetTransform(xform.WorldMatrix);
         args.WorldHandle.DrawRect(Position.Value, Color.Red.WithAlpha(100));
-        args.WorldHandle.SetTransform(Matrix3x2.Identity);
+        args.WorldHandle.SetTransform(Matrix3.Identity);
     }
 }

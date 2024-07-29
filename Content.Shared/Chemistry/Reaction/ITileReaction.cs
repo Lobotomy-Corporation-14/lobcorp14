@@ -6,9 +6,6 @@ namespace Content.Shared.Chemistry.Reaction
 {
     public interface ITileReaction
     {
-        FixedPoint2 TileReact(TileRef tile,
-            ReagentPrototype reagent,
-            FixedPoint2 reactVolume,
-            IEntityManager entityManager);
+        FixedPoint2 TileReact(TileRef tile, ReagentPrototype reagent, FixedPoint2 reactVolume);
     }
 }
