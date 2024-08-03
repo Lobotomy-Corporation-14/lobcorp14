@@ -11764,9 +11764,6 @@ entities:
       linkedPorts:
         227:
         - DoorStatus: Close
-    - type: DeviceLinkSink
-      links:
-      - 227
   - uid: 21533
     components:
     - type: Transform
@@ -11777,9 +11774,6 @@ entities:
       linkedPorts:
         6695:
         - DoorStatus: Close
-    - type: DeviceLinkSink
-      links:
-      - 6695
   - uid: 21534
     components:
     - type: Transform
@@ -11790,9 +11784,6 @@ entities:
       linkedPorts:
         6693:
         - DoorStatus: Close
-    - type: DeviceLinkSink
-      links:
-      - 6693
   - uid: 21535
     components:
     - type: Transform
@@ -11803,9 +11794,6 @@ entities:
       linkedPorts:
         6767:
         - DoorStatus: Close
-    - type: DeviceLinkSink
-      links:
-      - 6767
 - proto: AirlockExternalGlassShuttleEscape
   entities:
   - uid: 2733
@@ -13224,9 +13212,6 @@ entities:
       linkedPorts:
         12842:
         - DoorStatus: DoorBolt
-    - type: DeviceLinkSink
-      links:
-      - 12842
 - proto: AirlockSyndicateGlassLocked
   entities:
   - uid: 5333

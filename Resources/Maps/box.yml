@@ -11355,9 +11355,6 @@ entities:
       linkedPorts:
         655:
         - DoorStatus: Close
-    - type: DeviceLinkSink
-      links:
-      - 655
   - uid: 1110
     components:
     - type: Transform
@@ -11368,9 +11365,6 @@ entities:
       linkedPorts:
         12466:
         - DoorStatus: Close
-    - type: DeviceLinkSink
-      links:
-      - 12466
   - uid: 12469
     components:
     - type: Transform
@@ -11380,9 +11374,6 @@ entities:
       linkedPorts:
         12468:
         - DoorStatus: Close
-    - type: DeviceLinkSink
-      links:
-      - 12468
   - uid: 12470
     components:
     - type: Transform
@@ -11392,9 +11383,6 @@ entities:
       linkedPorts:
         12467:
         - DoorStatus: Close
-    - type: DeviceLinkSink
-      links:
-      - 12467
   - uid: 12486
     components:
     - type: Transform
@@ -11405,9 +11393,6 @@ entities:
       linkedPorts:
         610:
         - DoorStatus: Close
-    - type: DeviceLinkSink
-      links:
-      - 610
 - proto: AirlockFreezer
   entities:
   - uid: 25720

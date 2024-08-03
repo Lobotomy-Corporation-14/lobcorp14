@@ -108,15 +108,4 @@ public sealed class SalvageMagnetBoundUserInterface : BoundUserInterface
             _window.AddOption(option);
         }
     }
-
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-
-        if (disposing)
-        {
-            _window?.Close();
-            _window?.Dispose();
-        }
-    }
 }

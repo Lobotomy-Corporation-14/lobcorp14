@@ -127,21 +127,6 @@ public sealed partial class BorgMenu : FancyWindow
                 return;
         }
 
-        if (_chassis.ModuleContainer.Count == _modules.Count)
-        {
-            var isSame = true;
-            foreach (var module in _chassis.ModuleContainer.ContainedEntities)
-            {
-                if (_modules.Contains(module))
-                    continue;
-                isSame = false;
-                break;
-            }
-
-            if (isSame)
-                return;
-        }
-
         ModuleContainer.Children.Clear();
         _modules.Clear();
         foreach (var module in chassis.ModuleContainer.ContainedEntities)

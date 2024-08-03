@@ -64998,49 +64998,31 @@ entities:
     - type: Transform
       pos: -21.5,4.5
       parent: 1
-    - type: DeviceLinkSink
-      links:
-      - 5883
   - uid: 1937
     components:
     - type: Transform
       pos: -20.5,4.5
       parent: 1
-    - type: DeviceLinkSink
-      links:
-      - 5883
   - uid: 1938
     components:
     - type: Transform
       pos: -18.5,4.5
       parent: 1
-    - type: DeviceLinkSink
-      links:
-      - 5883
   - uid: 1939
     components:
     - type: Transform
       pos: -17.5,4.5
       parent: 1
-    - type: DeviceLinkSink
-      links:
-      - 5883
   - uid: 1940
     components:
     - type: Transform
       pos: -15.5,4.5
       parent: 1
-    - type: DeviceLinkSink
-      links:
-      - 5883
   - uid: 1941
     components:
     - type: Transform
       pos: -14.5,4.5
       parent: 1
-    - type: DeviceLinkSink
-      links:
-      - 5883
   - uid: 3618
     components:
     - type: Transform
